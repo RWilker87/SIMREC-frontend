@@ -2,56 +2,85 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient.js";
-import styles from "../components/DetalhesEscola.module.css";
-import painelStyles from "../components/PainelPrincipal.module.css";
+import styles from "./DetalhesEscola.module.css";
+import painelStyles from "./PainelPrincipal.module.css";
 
+// --- COMPONENTE DE GRÁFICO (CORRIGIDO) ---
+// Este gráfico agora mostra as notas das avaliações (SAEB, Prova Brasil, etc.)
+// para um grupo específico (ex: "2023 - 5º Ano - Português")
+const GraficoDeBarras = ({ titulo, data }) => {
+  if (!data || data.length === 0) return null; // não renderiza se não houver dados
+
+  const maxValor = 10;
+  // Cores para as barras
+  const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#0088FE"];
+
+  return (
+    <div className={styles.graficoCard}>
+      <h3>{titulo}</h3>
+      <div className={styles.chartContainer}>
+        <div className={styles.yAxis}>
+          <span>10</span>
+          <span>7.5</span>
+          <span>5.0</span>
+          <span>2.5</span>
+          <span>0</span>
+        </div>
+        <div className={styles.chartContent}>
+          {data.map((item, index) => (
+            <div key={item.avaliacao} className={styles.barGroup}>
+              <div className={styles.barWrapper}>
+                <div
+                  className={styles.bar}
+                  style={{
+                    height: `${(item.valor_indice / maxValor) * 100}%`,
+                    // Usa uma cor diferente para cada barra
+                    backgroundColor: colors[index % colors.length],
+                  }}
+                  title={`${item.avaliacao}: ${item.valor_indice.toFixed(2)}`}
+                />
+              </div>
+              <span className={styles.barLabel}>{item.avaliacao}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- COMPONENTE PRINCIPAL ---
 export default function DetalhesEscola({ escola, onVoltar }) {
   const [user, setUser] = useState(null);
   const [canEdit, setCanEdit] = useState(false);
   const [resultados, setResultados] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados do formulário de resultados
-  const [avaliacao, setAvaliacao] = useState("");
-  const [ano, setAno] = useState(new Date().getFullYear());
-  const [serie, setSerie] = useState("");
-  const [valorIndice, setValorIndice] = useState("");
-  const [disciplina, setDisciplina] = useState("");
-
-  // UID do admin (fixo)
   const ADMIN_UID = "e55942f2-87c9-4811-9a0b-0841e8a39733";
 
-  // 🔐 Busca o usuário logado e define permissões
+  // --- AUTENTICAÇÃO ---
   useEffect(() => {
     async function getUser() {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (error) {
-        console.error("Erro ao obter usuário:", error.message);
-        return;
-      }
-
-      setUser(user);
-      setCanEdit(user?.id === ADMIN_UID);
+      const { data, error } = await supabase.auth.getUser();
+      setUser(data?.user || null);
+      setCanEdit(data?.user?.id === ADMIN_UID);
     }
     getUser();
   }, []);
 
-  // 🔍 Busca os resultados da escola
+  // --- BUSCAR RESULTADOS ---
   async function fetchResultados() {
     setLoading(true);
     const { data, error } = await supabase
       .from("resultados")
       .select("*")
       .eq("escola_id", escola.id)
-      .order("created_at", { ascending: false });
+      .order("ano", { ascending: true }); // Ordena por ano
 
-    if (!error) {
-      setResultados(data);
-    } else {
+    if (error) {
       alert("Erro ao buscar resultados: " + error.message);
+    } else {
+      setResultados(data);
     }
     setLoading(false);
   }
@@ -60,17 +89,24 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     fetchResultados();
   }, [escola.id]);
 
-  // ➕ Adicionar resultado (apenas admin)
+  // --- FORMULÁRIO DE ADIÇÃO ---
+  const [avaliacao, setAvaliacao] = useState("");
+  const [ano, setAno] = useState(new Date().getFullYear());
+  const [serie, setSerie] = useState("");
+  const [valorIndice, setValorIndice] = useState("");
+  const [disciplina, setDisciplina] = useState("");
+
   const handleAddResultado = async (e) => {
     e.preventDefault();
     if (!canEdit)
       return alert("Apenas o administrador pode adicionar resultados.");
+
     if (!avaliacao || !ano || !serie || !valorIndice || !disciplina) {
-      alert("Por favor, preencha todos os campos do resultado.");
+      alert("Preencha todos os campos antes de adicionar.");
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // Ativa o loading
     const { error } = await supabase.from("resultados").insert({
       escola_id: escola.id,
       avaliacao,
@@ -81,40 +117,40 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     });
 
     if (error) {
-      alert("Erro ao salvar resultado: " + error.message);
+      alert("Erro ao salvar: " + error.message);
     } else {
       alert("Resultado salvo com sucesso!");
+      fetchResultados(); // Re-busca os dados para atualizar gráficos e lista
+      // Limpa o formulário
       setAvaliacao("");
-      setAno(new Date().getFullYear());
       setSerie("");
       setValorIndice("");
       setDisciplina("");
-      fetchResultados();
     }
-    setLoading(false);
+    setLoading(false); // Desativa o loading
   };
 
-  // ❌ Deletar resultado (apenas admin)
-  const handleDeleteResultado = async (resultadoId) => {
-    if (!canEdit)
-      return alert("Apenas o administrador pode deletar resultados.");
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from("resultados")
-        .delete()
-        .eq("id", resultadoId);
+  // --- DELETAR RESULTADO ---
+  const handleDeleteResultado = async (id) => {
+    if (!canEdit) return alert("Apenas o administrador pode deletar.");
 
-      if (error) throw error;
-
-      setResultados(resultados.filter((r) => r.id !== resultadoId));
-    } catch (error) {
-      alert("Erro ao deletar resultado: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true); // Ativa o loading
+    const { error } = await supabase.from("resultados").delete().eq("id", id);
+    if (error) alert("Erro ao deletar: " + error.message);
+    else fetchResultados(); // Re-busca os dados para atualizar gráficos e lista
+    setLoading(false); // Desativa o loading
   };
 
+  // --- AGRUPAR RESULTADOS POR ANO/SÉRIE/DISCIPLINA ---
+  const grupos = {};
+  resultados.forEach((r) => {
+    // A chave de agrupamento
+    const chave = `${r.ano} - ${r.serie} - ${r.disciplina}`;
+    if (!grupos[chave]) grupos[chave] = [];
+    grupos[chave].push(r);
+  });
+
+  // --- INTERFACE ---
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -125,21 +161,37 @@ export default function DetalhesEscola({ escola, onVoltar }) {
         <small>INEP: {escola.codigo_inep}</small>
       </div>
 
+      {/* --- GRÁFICOS AGRUPADOS --- */}
+      {/* Container para os gráficos */}
+      <div className={styles.graficosContainer}>
+        {loading ? (
+          <p>Carregando gráficos...</p>
+        ) : Object.keys(grupos).length > 0 ? (
+          Object.entries(grupos).map(([chave, dados]) => (
+            <GraficoDeBarras key={chave} titulo={chave} data={dados} />
+          ))
+        ) : (
+          <p className={styles.noData}>
+            Nenhum dado disponível para gerar gráficos.
+          </p>
+        )}
+      </div>
+
+      {/* --- FORMULÁRIO (ADMIN) E LISTA --- */}
       <div className={painelStyles.contentRow}>
-        {/* ✅ Formulário aparece somente se for o admin */}
         {canEdit && (
           <form onSubmit={handleAddResultado} className={styles.cardForm}>
             <h3>Adicionar Novo Resultado</h3>
             <input
               type="text"
-              placeholder="Nome da Avaliação (ex: SAEB, Prova Brasil)"
+              placeholder="Avaliação (ex: SAEB)"
               value={avaliacao}
               onChange={(e) => setAvaliacao(e.target.value)}
               className={styles.input}
             />
             <input
               type="text"
-              placeholder="Disciplina (ex: Português, Matemática)"
+              placeholder="Disciplina (ex: Português)"
               value={disciplina}
               onChange={(e) => setDisciplina(e.target.value)}
               className={styles.input}
@@ -153,7 +205,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
             />
             <input
               type="text"
-              placeholder="Série (ex: 5º Ano, 9º Ano)"
+              placeholder="Série (ex: 5º Ano)"
               value={serie}
               onChange={(e) => setSerie(e.target.value)}
               className={styles.input}
@@ -161,7 +213,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
             <input
               type="number"
               step="0.01"
-              placeholder="Valor/Índice (ex: 5.75)"
+              placeholder="Valor/Índice"
               value={valorIndice}
               onChange={(e) => setValorIndice(e.target.value)}
               className={styles.input}
@@ -171,49 +223,48 @@ export default function DetalhesEscola({ escola, onVoltar }) {
               disabled={loading}
               className={styles.addButton}
             >
-              {loading ? "Salvando..." : "Adicionar Resultado"}
+              {loading ? "Salvando..." : "Adicionar"}
             </button>
           </form>
         )}
 
-        {/* 📊 Lista de Resultados */}
+        {/* Lista de todos os resultados */}
         <div className={canEdit ? styles.cardList : styles.cardListFullWidth}>
-          <h3>Resultados Cadastrados</h3>
-          {loading && <p>Carregando...</p>}
-          <ul className={styles.list}>
-            {resultados.length > 0
-              ? resultados.map((r) => (
-                  <li key={r.id} className={styles.listItem}>
-                    <div className={styles.resultadoInfo}>
-                      <span>
-                        <strong>
-                          {r.disciplina} - {r.avaliacao}
-                        </strong>
-                        <small>
-                          {r.ano} - {r.serie}
-                        </small>
-                      </span>
-                      <span className={styles.indiceValor}>
-                        {r.valor_indice ? r.valor_indice.toFixed(2) : "N/A"}
-                      </span>
-                    </div>
-
-                    {/* ❌ Botão Deletar só para admin */}
-                    {canEdit && (
-                      <button
-                        className={styles.deleteButton}
-                        onClick={() => handleDeleteResultado(r.id)}
-                        disabled={loading}
-                      >
-                        Deletar
-                      </button>
-                    )}
-                  </li>
-                ))
-              : !loading && (
-                  <p>Nenhum resultado cadastrado para esta escola.</p>
-                )}
-          </ul>
+          <h3>Todos os Resultados</h3>
+          {loading ? (
+            <p>Carregando...</p>
+          ) : resultados.length === 0 ? (
+            <p>Nenhum resultado cadastrado.</p>
+          ) : (
+            <ul className={styles.list}>
+              {resultados.map((r) => (
+                <li key={r.id} className={styles.listItem}>
+                  <div className={styles.resultadoInfo}>
+                    <span>
+                      <strong>
+                        {r.disciplina} - {r.avaliacao}
+                      </strong>
+                      <small>
+                        {r.ano} - {r.serie}
+                      </small>
+                    </span>
+                    <span className={styles.indiceValor}>
+                      {r.valor_indice ? r.valor_indice.toFixed(2) : "N/A"}
+                    </span>
+                  </div>
+                  {canEdit && (
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteResultado(r.id)}
+                      disabled={loading} // Desativa se estiver carregando
+                    >
+                      Deletar
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
