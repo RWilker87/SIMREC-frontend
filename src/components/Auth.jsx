@@ -1,9 +1,9 @@
-// src/components/Auth.jsx (Corrigido com notação de colchetes)
-
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "./Auth.module.css";
-import logo from "../assets/logo.png";
+
+import logo from "../assets/logo.png"; // Logo principal do projeto
+import logoSecretaria from "../assets/seducLogo.png"; // Logo da SEDUC
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -27,17 +27,17 @@ export default function Auth() {
   };
 
   return (
-    // CORREÇÃO: Usando colchetes para a classe com hífen
     <div className={styles["auth-container"]}>
-      {/* O card branco */}
       <div className={styles.card}>
-        <img src={logo} alt="SIMRE Logo" className={styles.logo} />
+        {/* Logo principal no topo */}
+        <img src={logo} alt="SIMREC Logo" className={styles.logo} />
+
         <p className={styles.subtitle}>
-          Sistema Integrado de Monitoramento de Recursos
+          Sistema Municipal de Resultados Educacionais de Capoeiras
         </p>
 
+        {/* Formulário de login */}
         <form className={styles.form} onSubmit={handleLogin}>
-          {/* Campo de E-mail com Label */}
           <div className={styles.inputGroup}>
             <label htmlFor="email">E-mail</label>
             <input
@@ -50,7 +50,6 @@ export default function Auth() {
             />
           </div>
 
-          {/* Campo de Senha com Label */}
           <div className={styles.inputGroup}>
             <label htmlFor="password">Senha</label>
             <input
@@ -67,11 +66,17 @@ export default function Auth() {
             {loading ? "Carregando..." : "Entrar"}
           </button>
         </form>
+
+        {/* Logo da Secretaria embaixo do botão */}
+        <img
+          src={logoSecretaria}
+          alt="Secretaria de Educação de Capoeiras"
+          className={styles.logoSecretaria}
+        />
       </div>
 
-      {/* Rodapé */}
       <footer className={styles.footer}>
-        <p>© 2025 SIMRE. Todos os direitos reservados.</p>
+        <p>© 2025 SIMREC. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
