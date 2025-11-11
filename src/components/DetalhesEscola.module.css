@@ -1,4 +1,4 @@
-/* src/components/DetalhesEscola.module.css (NOVO ARQUIVO) */
+/* src/components/DetalhesEscola.module.css (Completo com estilos de gráfico) */
 
 .container {
   width: 100%;
@@ -34,7 +34,109 @@
   text-decoration: underline;
 }
 
-/* Reutilizar estilos dos cards */
+/* --- ESTILOS DE GRÁFICO --- */
+
+.graficosContainer {
+  display: grid;
+  /* Cria colunas de no mínimo 300px, quebrando a linha se não couber */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.graficoCard {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e7e7e7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+.graficoCard h3 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 1.2em;
+  color: #1a1a1a;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+.chartContainer {
+  display: flex;
+  width: 100%;
+  height: 200px; /* Altura fixa para o gráfico */
+}
+
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: right;
+  padding-right: 10px;
+  height: 100%;
+  font-size: 0.8em;
+  color: #777;
+  border-right: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.chartContent {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end; /* Barras crescem de baixo para cima */
+  flex-grow: 1;
+  height: 100%;
+  padding-left: 10px;
+}
+
+.noData {
+  color: #777;
+  font-style: italic;
+  margin: 10px 0;
+}
+
+.barGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-grow: 1;
+  height: 100%;
+  position: relative;
+}
+
+.barWrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 30px; /* Largura de cada barra */
+  height: 100%;
+}
+
+.bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease-out;
+  cursor: pointer;
+}
+.bar:hover {
+  opacity: 0.8;
+}
+
+.barLabel {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #555;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* --- FIM DOS ESTILOS DE GRÁFICO --- */
+
+/* Estilos do Formulário e Lista */
 .cardForm,
 .cardList {
   background-color: #ffffff;
@@ -48,17 +150,32 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  /* Faz o formulário se auto-ajustar em altura */
+  align-self: flex-start;
 }
 
 .cardList {
-  /* Garante que a lista possa crescer */
   align-self: flex-start;
   width: 100%;
   box-sizing: border-box;
 }
 
+/* Para o Gestor (sem formulário), a lista ocupa tudo */
+.cardListFullWidth {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e7e7e7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  align-self: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+
 .cardForm h3,
-.cardList h3 {
+.cardList h3,
+.cardListFullWidth h3 {
   margin-top: 0;
   margin-bottom: 20px;
   font-size: 1.2em;
@@ -66,7 +183,6 @@
   text-align: left;
 }
 
-/* Inputs e Botão (estilo claro) */
 .input {
   width: 100%;
   padding: 14px;
@@ -116,6 +232,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 15px;
   padding: 14px 8px;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -124,11 +241,24 @@
   border-bottom: none;
 }
 
-.listItem span {
+.resultadoInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 1;
+  /* Impede que o texto seja espremido */
+  min-width: 0;
+}
+
+.resultadoInfo span:first-child {
   font-size: 1em;
   color: #333;
+  /* Trunca o texto se for muito longo */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.listItem span strong {
+.resultadoInfo span strong {
   display: block;
   font-weight: 600;
 }
@@ -137,4 +267,31 @@
   font-size: 1.2em;
   font-weight: 700;
   color: #646cff;
+  padding-left: 10px;
+  white-space: nowrap;
+}
+
+.deleteButton {
+  background-color: #fbebee;
+  color: #dc3545;
+  border: 1px solid #f5c6cb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background-color: #f8d7da;
+}
+
+.deleteButton:disabled {
+  background-color: #eee;
+  color: #aaa;
+  border-color: #ddd;
+  cursor: not-allowed;
 }
