@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "./Dashboard.module.css";
+import DetalhesEscola from "./DetalhesEscola.jsx";
 
 // Importa os ícones (simulados com texto por enquanto)
 const IconDashboard = () => <span>📊</span>;
@@ -17,6 +18,7 @@ export default function Dashboard({ session }) {
   const [loading, setLoading] = useState(false);
   // Controla qual página está visível
   const [paginaAtiva, setPaginaAtiva] = useState("dashboard");
+  const [escolaSelecionada, setEscolaSelecionada] = useState(null);
 
   const handleLogout = async () => {
     try {
@@ -30,8 +32,12 @@ export default function Dashboard({ session }) {
     }
   };
 
+  const handleVoltarParaLista = () => {
+    setEscolaSelecionada(null);
+  };
+
   const emailUsuario = session.user.email;
-  // Pega a primeira letra do email para o Avatar
+  // Pega a pri meira letra do email para o Avatar
   const avatarSigla = emailUsuario ? emailUsuario[0].toUpperCase() : "?";
 
   return (
@@ -50,22 +56,28 @@ export default function Dashboard({ session }) {
                   ? styles.navItemAtivo
                   : styles.navItem
               }
-              onClick={() => setPaginaAtiva("dashboard")}
+              onClick={() => {
+                setPaginaAtiva("dashboard");
+                setEscolaSelecionada(null); // Limpa a seleção ao trocar de aba
+              }}
             >
               <IconDashboard /> Dashboard
             </a>
-            {/* Este link agora carrega seu componente GerenciarEscolas */}
             <a
               href="#"
               className={
                 paginaAtiva === "escolas" ? styles.navItemAtivo : styles.navItem
               }
-              onClick={() => setPaginaAtiva("escolas")}
+              onClick={() => {
+                setPaginaAtiva("escolas");
+                setEscolaSelecionada(null); // Limpa a seleção ao trocar de aba
+              }}
             >
               <IconEscolas /> Gerenciar Escolas
             </a>
           </nav>
         </div>
+        {/* ... (perfil sidebar continua igual) */}
         <div className={styles.perfilSidebar}>
           <div className={styles.avatar}>{avatarSigla}</div>
           <div className={styles.perfilInfo}>
@@ -77,9 +89,9 @@ export default function Dashboard({ session }) {
 
       {/* 2. Conteúdo Principal */}
       <div className={styles.mainContent}>
-        {/* 2a. Cabeçalho (Header) */}
+        {/* ... (header continua igual) */}
         <header className={styles.header}>
-          <div /> {/* Div vazia para empurrar o avatar para a direita */}
+          <div />
           <div className={styles.menuUsuario}>
             <div className={styles.avatar}>{avatarSigla}</div>
             <span>Admin User</span>
@@ -93,10 +105,27 @@ export default function Dashboard({ session }) {
           </div>
         </header>
 
-        {/* 2b. Área da Página */}
+        {/* 3. LÓGICA DE RENDERIZAÇÃO ATUALIZADA */}
         <main className={styles.pagina}>
           {paginaAtiva === "dashboard" && <PainelPrincipal />}
-          {paginaAtiva === "escolas" && <GerenciarEscolas />}
+
+          {/* Se a página ativa for "escolas" */}
+          {paginaAtiva === "escolas" && (
+            <>
+              {/* Mostra DETALHES se uma escola estiver selecionada */}
+              {escolaSelecionada ? (
+                <DetalhesEscola
+                  escola={escolaSelecionada}
+                  onVoltar={handleVoltarParaLista}
+                />
+              ) : (
+                /* Mostra a LISTA se nenhuma escola estiver selecionada */
+                <GerenciarEscolas
+                  onSelecionarEscola={(escola) => setEscolaSelecionada(escola)}
+                />
+              )}
+            </>
+          )}
         </main>
       </div>
     </div>
