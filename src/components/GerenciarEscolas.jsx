@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-// 1. Importa o CSS Module
 import styles from "./GerenciarEscolas.module.css";
 
 export default function GerenciarEscolas() {
   const [escolas, setEscolas] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Estados para o novo formulário
   const [nomeEscola, setNomeEscola] = useState("");
   const [emailEscola, setEmailEscola] = useState("");
   const [senhaEscola, setSenhaEscola] = useState("");
+  // 1. ADICIONAR NOVO ESTADO
+  const [codigoInep, setCodigoInep] = useState("");
 
   const fetchEscolas = async () => {
     setLoading(true);
@@ -33,52 +32,48 @@ export default function GerenciarEscolas() {
 
   const handleAddEscola = async (e) => {
     e.preventDefault();
-    if (!nomeEscola || !emailEscola || !senhaEscola) {
-      alert("Por favor, preencha nome, email e senha da escola.");
+    // 2. ATUALIZAR VALIDAÇÃO
+    if (!nomeEscola || !emailEscola || !senhaEscola || !codigoInep) {
+      alert("Por favor, preencha todos os campos, incluindo o Código INEP.");
       return;
     }
 
     try {
       setLoading(true);
 
-      // 1️⃣ Cria o usuário no Supabase Auth
-      const { data: userData, error: signUpError } =
-        await supabase.auth.admin.createUser({
-          email: emailEscola,
-          password: senhaEscola,
-          email_confirm: true, // pula verificação de e-mail
-          user_metadata: { tipo: "escola" },
-        });
-
-      if (signUpError) throw signUpError;
-
-      const newUserId = userData.user.id;
-
-      // 2️⃣ Cria a escola vinculada a esse usuário
-      const { error: insertError } = await supabase.from("escolas").insert({
-        nome_escola: nomeEscola,
-        user_id: newUserId,
+      // 3. ATUALIZAR O CORPO (BODY) DA REQUISIÇÃO
+      const { data, error } = await supabase.functions.invoke("criar-escola", {
+        body: {
+          _nome_escola: nomeEscola,
+          _email: emailEscola,
+          _password: senhaEscola,
+          _codigo_inep: codigoInep, // <-- ADICIONADO
+        },
       });
 
-      if (insertError) throw insertError;
+      if (error) throw error;
 
       alert("Escola e usuário criados com sucesso!");
+
+      // 4. LIMPAR O NOVO CAMPO
       setNomeEscola("");
       setEmailEscola("");
       setSenhaEscola("");
+      setCodigoInep(""); // <-- ADICIONADO
       fetchEscolas();
     } catch (error) {
-      alert("Erro: " + error.message);
+      // Corrigido para mostrar o erro corretamente
+      alert("Erro: " + (error.context?.error?.message || error.message));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteEscola = async (escolaId) => {
+    // (Lógica de deletar)
     if (!window.confirm("Tem certeza que deseja deletar esta escola?")) {
       return;
     }
-
     try {
       setLoading(true);
       const { error } = await supabase
@@ -95,11 +90,8 @@ export default function GerenciarEscolas() {
   };
 
   return (
-    // 2. Usa 'className' para o container (não mais 'style')
     <div className={styles.container}>
       <h3>Gerenciamento de Unidades Escolares</h3>
-
-      {/* 3. Usa 'className' para o formulário e inputs */}
       <form onSubmit={handleAddEscola} className={styles.form}>
         <h4>Cadastrar Nova Escola (e seu Login)</h4>
         <input
@@ -109,6 +101,16 @@ export default function GerenciarEscolas() {
           onChange={(e) => setNomeEscola(e.target.value)}
           className={styles.input}
         />
+
+        {/* 5. ADICIONAR ESTE NOVO INPUT */}
+        <input
+          type="text"
+          placeholder="Código INEP da escola"
+          value={codigoInep}
+          onChange={(e) => setCodigoInep(e.target.value)}
+          className={styles.input}
+        />
+
         <input
           type="email"
           placeholder="Email de login da escola"
@@ -128,14 +130,15 @@ export default function GerenciarEscolas() {
         </button>
       </form>
 
-      {/* 4. Usa 'className' para a lista */}
       <h4>Escolas Cadastradas:</h4>
       {loading && <p>Carregando lista...</p>}
       <ul className={styles.list}>
         {escolas.length > 0
           ? escolas.map((escola) => (
               <li key={escola.id} className={styles.listItem}>
-                <span>{escola.nome_escola}</span>
+                <span>
+                  {escola.nome_escola} (INEP: {escola.codigo_inep})
+                </span>
                 <button
                   onClick={() => handleDeleteEscola(escola.id)}
                   className={styles.deleteButton}
