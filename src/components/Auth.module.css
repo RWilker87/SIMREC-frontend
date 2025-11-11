@@ -1,5 +1,6 @@
 .auth-container {
   display: flex;
+  flex-direction: column; /* <-- ADICIONEI ESTA LINHA */
   justify-content: center;
   align-items: center;
   height: 100vh; /* Ocupa toda a tela */
