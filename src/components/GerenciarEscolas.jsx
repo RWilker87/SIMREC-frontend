@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "./GerenciarEscolas.module.css";
+// Importar os estilos do painel para usar o grid de 2 colunas
+import painelStyles from "./PainelPrincipal.module.css";
 
-export default function GerenciarEscolas() {
+// 1. Receber a nova prop "onSelecionarEscola"
+export default function GerenciarEscolas({ onSelecionarEscola }) {
   const [escolas, setEscolas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nomeEscola, setNomeEscola] = useState("");
@@ -11,11 +14,12 @@ export default function GerenciarEscolas() {
   const [codigoInep, setCodigoInep] = useState("");
 
   const fetchEscolas = async () => {
+    // ... (função igual)
     setLoading(true);
     const { data, error } = await supabase
       .from("escolas")
       .select("id, nome_escola, codigo_inep")
-      .order("created_at", { ascending: false }); // Ordena pelas mais recentes
+      .order("created_at", { ascending: false });
 
     if (!error) {
       setEscolas(data);
@@ -30,15 +34,14 @@ export default function GerenciarEscolas() {
   }, []);
 
   const handleAddEscola = async (e) => {
+    // ... (função igual)
     e.preventDefault();
     if (!nomeEscola || !emailEscola || !senhaEscola || !codigoInep) {
       alert("Por favor, preencha todos os campos, incluindo o Código INEP.");
       return;
     }
-
     try {
       setLoading(true);
-
       const { data, error } = await supabase.functions.invoke("criar-escola", {
         body: {
           _nome_escola: nomeEscola,
@@ -47,16 +50,13 @@ export default function GerenciarEscolas() {
           _codigo_inep: codigoInep,
         },
       });
-
       if (error) throw error;
-
       alert("Escola e usuário criados com sucesso!");
-
       setNomeEscola("");
       setEmailEscola("");
       setSenhaEscola("");
       setCodigoInep("");
-      fetchEscolas(); // Atualiza a lista
+      fetchEscolas();
     } catch (error) {
       alert("Erro: " + (error.context?.error?.message || error.message));
     } finally {
@@ -65,6 +65,7 @@ export default function GerenciarEscolas() {
   };
 
   const handleDeleteEscola = async (escolaId) => {
+    // ... (função igual)
     if (!window.confirm("Tem certeza que deseja deletar esta escola?")) {
       return;
     }
@@ -84,70 +85,82 @@ export default function GerenciarEscolas() {
   };
 
   return (
-    // Container principal da página
     <div className={styles.container}>
-      {/* Título da Página (Consistente com o Dashboard) */}
       <h1>Gerenciar Escolas</h1>
 
-      {/* Card 1: Formulário de Cadastro */}
-      <form onSubmit={handleAddEscola} className={styles.cardForm}>
-        <h3>Cadastrar Nova Escola (e seu Login)</h3>
-        <input
-          type="text"
-          placeholder="Nome da nova escola"
-          value={nomeEscola}
-          onChange={(e) => setNomeEscola(e.target.value)}
-          className={styles.input}
-        />
-        <input
-          type="text"
-          placeholder="Código INEP da escola"
-          value={codigoInep}
-          onChange={(e) => setCodigoInep(e.target.value)}
-          className={styles.input}
-        />
-        <input
-          type="email"
-          placeholder="Email de login da escola"
-          value={emailEscola}
-          onChange={(e) => setEmailEscola(e.target.value)}
-          className={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Senha de login da escola"
-          value={senhaEscola}
-          onChange={(e) => setSenhaEscola(e.target.value)}
-          className={styles.input}
-        />
-        <button type="submit" disabled={loading} className={styles.addButton}>
-          {loading ? "Salvando..." : "Criar Escola e Login"}
-        </button>
-      </form>
+      {/* 2. Usar o grid de 2 colunas do PainelPrincipal */}
+      <div className={painelStyles.contentRow}>
+        {/* Card 1: Formulário de Cadastro */}
+        <form onSubmit={handleAddEscola} className={styles.cardForm}>
+          <h3>Cadastrar Nova Escola</h3>
+          {/* ... (inputs do formulário iguais) */}
+          <input
+            type="text"
+            placeholder="Nome da nova escola"
+            value={nomeEscola}
+            onChange={(e) => setNomeEscola(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="Código INEP da escola"
+            value={codigoInep}
+            onChange={(e) => setCodigoInep(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="email"
+            placeholder="Email de login da escola"
+            value={emailEscola}
+            onChange={(e) => setEmailEscola(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="password"
+            placeholder="Senha de login da escola"
+            value={senhaEscola}
+            onChange={(e) => setSenhaEscola(e.target.value)}
+            className={styles.input}
+          />
+          <button type="submit" disabled={loading} className={styles.addButton}>
+            {loading ? "Salvando..." : "Criar Escola e Login"}
+          </button>
+        </form>
 
-      {/* Card 2: Lista de Escolas */}
-      <div className={styles.cardList}>
-        <h3>Escolas Cadastradas</h3>
-        {loading && <p>Carregando lista...</p>}
-        <ul className={styles.list}>
-          {escolas.length > 0
-            ? escolas.map((escola) => (
-                <li key={escola.id} className={styles.listItem}>
-                  <span>
-                    <strong>{escola.nome_escola}</strong>
-                    <small>INEP: {escola.codigo_inep}</small>
-                  </span>
-                  <button
-                    onClick={() => handleDeleteEscola(escola.id)}
-                    className={styles.deleteButton}
-                    disabled={loading}
-                  >
-                    Deletar
-                  </button>
-                </li>
-              ))
-            : !loading && <p>Nenhuma escola cadastrada ainda.</p>}
-        </ul>
+        {/* Card 2: Lista de Escolas */}
+        <div className={styles.cardList}>
+          <h3>Escolas Cadastradas</h3>
+          {loading && <p>Carregando lista...</p>}
+          <ul className={styles.list}>
+            {escolas.length > 0
+              ? escolas.map((escola) => (
+                  <li key={escola.id} className={styles.listItem}>
+                    <span>
+                      <strong>{escola.nome_escola}</strong>
+                      <small>INEP: {escola.codigo_inep}</small>
+                    </span>
+                    {/* 3. GRUPO DE BOTÕES ATUALIZADO */}
+                    <div className={styles.buttonGroup}>
+                      <button
+                        onClick={() => onSelecionarEscola(escola)} // Chama a prop
+                        className={styles.detailsButton} // Novo botão
+                        disabled={loading}
+                      >
+                        Detalhes
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEscola(escola.id)}
+                        className={styles.deleteButton}
+                        disabled={loading}
+                      >
+                        Deletar
+                      </button>
+                    </div>
+                  </li>
+                ))
+              : !loading && <p>Nenhuma escola cadastrada ainda.</p>}
+          </ul>
+        </div>
       </div>
     </div>
   );
