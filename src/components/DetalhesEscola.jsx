@@ -6,15 +6,15 @@ import styles from "./DetalhesEscola.module.css";
 import painelStyles from "./PainelPrincipal.module.css";
 
 // ==========================================================
-// COMPONENTE DE GRÁFICO — BARRAS + LINHA (MIX)
+// COMPONENTE DE GRÁFICO — BARRAS + LINHA (MIX) (AJUSTADO IDEB/IDEPE)
 // ==========================================================
 const GraficoDeBarras = ({ titulo, data }) => {
   if (!data || data.length === 0) return null;
 
-  // --- dados já ordenados por ano (garantido externamente) ---
-  const pontos = data.map((d) => ({
+  // --- dados brutos (ordenados por ano externamente) ---
+  const rawPontos = data.map((d) => ({
     ano: d.ano,
-    valor: Number(d.valor_indice ?? 0),
+    rawValor: Number(d.valor_indice ?? 0),
     avaliacao: d.avaliacao,
     serie: d.serie,
     disciplina: d.disciplina,
@@ -23,41 +23,70 @@ const GraficoDeBarras = ({ titulo, data }) => {
   function formatarTitulo(titulo) {
     if (!titulo) return "";
 
-    // Remove espaços extras
     let novo = titulo.trim();
-
-    // Substitui diferentes tipos de hífens por um padrão
     novo = novo.replace(/[-–—]+/g, " - ");
-
-    // Remove espaços duplicados
     novo = novo.replace(/\s+/g, " ");
-
-    // Coloca em MAIÚSCULAS
     novo = novo.toUpperCase();
-
-    // Substitui " - " por " – " (travessão)
     novo = novo.replace(/ - /g, " – ");
-
-    // Converte ordinais masculinos: 5o → 5º
     novo = novo.replace(/(\d+)\s*o\b/gi, "$1º");
-
     return novo;
   }
 
-  // --- DEFINIR ESCALA ---
-  const serie = (pontos[0].serie || "").toString().toLowerCase();
-  const avaliacao = (pontos[0].avaliacao || "").toString().toLowerCase();
+  const primeira = rawPontos[0] || {};
+  const serie = (primeira.serie || "").toString().toLowerCase();
+  const avaliacao = (primeira.avaliacao || "").toString().toLowerCase();
+  // Detecta IDEB/IDEPE no campo e também no título
+  const tituloLower = titulo.toLowerCase();
+  const isIdeb =
+    tituloLower.includes("ideb") ||
+    tituloLower.includes("idepe") ||
+    avaliacao.includes("ideb") ||
+    avaliacao.includes("idepe");
 
+  // FORCE escala 0-10 para IDEB/IDEPE
   let maxValor = 10;
-  if (serie.includes("2")) maxValor = 1000;
-  else if (serie.includes("5") || serie.includes("9")) maxValor = 500;
-  if (avaliacao.includes("ideb") || avaliacao.includes("idepe")) maxValor = 10;
+  if (!isIdeb) {
+    // comportamento antigo para outras avaliações
+    if (serie.includes("2")) maxValor = 1000;
+    else if (serie.includes("5") || serie.includes("9")) maxValor = 500;
+    else maxValor = 10;
+  } else {
+    maxValor = 10;
+  }
+
+  // --- Nova normalização robusta para IDEB/IDEPE ---
+  // Se isIdeb: detectar rawMax e escolher divisor (1,10,100,1000...)
+  // tal que rawMax / divisor <= 10 (ou divisor kept minimal)
+  let divisor = 1;
+  if (isIdeb) {
+    const rawMax = Math.max(
+      ...rawPontos.map((p) => Math.abs(p.rawValor || 0)),
+      0
+    );
+    // Evita divisor = 0 e garante que valores como 75 -> 7.5, 750 -> 7.5, etc.
+    while (rawMax / divisor > 10) {
+      divisor *= 10;
+      // safety: prevent infinite loop (não necessário, mas seguro)
+      if (divisor > 1e9) break;
+    }
+    // se rawMax estiver entre 11 e 99 e divisor stayed 1, a regra acima fará divisor=10
+    // (ex: rawMax=50 -> divisor=10 -> 50/10 = 5)
+  }
+
+  const pontos = rawPontos.map((p) => {
+    let v = p.rawValor;
+    if (isIdeb && divisor > 1) v = v / divisor;
+    // se divisor === 1 e isIdeb, mantemos v (caso já esteja 0-10)
+    // cap entre 0 e maxValor
+    v = Math.max(0, Math.min(v, maxValor));
+    return { ...p, valor: v };
+  });
 
   // marcadores para eixo Y
   const gerarMarcadores = () => {
     if (maxValor === 10) return [10, 7.5, 5, 2.5, 0];
     if (maxValor === 500) return [500, 375, 250, 125, 0];
-    return [1000, 750, 500, 250, 0]; // 1000
+    return [1000, 750, 500, 250, 0];
   };
   const marcadores = gerarMarcadores();
 
@@ -69,13 +98,12 @@ const GraficoDeBarras = ({ titulo, data }) => {
     const n = pontos.length;
     if (n === 0) return [];
     return pontos.map((p, i) => {
-      const x = n === 1 ? 50 : (i / (n - 1)) * 100; // porcentagem do eixo x
-      const y = 100 - (Math.min(p.valor, maxValor) / maxValor) * 100; // porcentagem invertida
-      return { x, y, valor: p.valor, ano: p.ano };
+      const x = n === 1 ? 50 : (i / (n - 1)) * 100;
+      const y = 100 - (Math.min(p.valor, maxValor) / maxValor) * 100;
+      return { x, y, valor: p.valor, ano: p.ano, rawValor: p.rawValor };
     });
   }, [pontos, maxValor]);
 
-  // Build polyline string for SVG if > 1 point
   const polylineStr =
     svgPoints.length > 1
       ? svgPoints.map((pt) => `${pt.x},${pt.y}`).join(" ")
@@ -86,16 +114,13 @@ const GraficoDeBarras = ({ titulo, data }) => {
       <h3>{formatarTitulo(titulo)}</h3>
 
       <div className={styles.chartContainer}>
-        {/* Eixo Y */}
         <div className={styles.yAxis}>
           {marcadores.map((m) => (
             <span key={m}>{m}</span>
           ))}
         </div>
 
-        {/* Conteúdo do gráfico (barras + SVG linha) */}
         <div className={styles.chartContent} style={{ position: "relative" }}>
-          {/* SVG overlay para linha e marcadores */}
           <svg
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
@@ -106,11 +131,10 @@ const GraficoDeBarras = ({ titulo, data }) => {
               width: "100%",
               height: "100%",
               pointerEvents: "none",
-              zIndex: 2, // sobreposto às barras para a linha ficar acima
+              zIndex: 2,
             }}
             aria-hidden="true"
           >
-            {/* grade horizontal opcional (leve) */}
             {marcadores.map((m, idx) => {
               const y = 100 - (m / maxValor) * 100;
               return (
@@ -126,7 +150,6 @@ const GraficoDeBarras = ({ titulo, data }) => {
               );
             })}
 
-            {/* polylines / linha conectando pontos (se houver >= 2) */}
             {polylineStr && (
               <polyline
                 points={polylineStr}
@@ -139,7 +162,6 @@ const GraficoDeBarras = ({ titulo, data }) => {
               />
             )}
 
-            {/* círculos marcadores */}
             {svgPoints.map((pt, i) => (
               <circle
                 key={`p-${i}`}
@@ -153,7 +175,6 @@ const GraficoDeBarras = ({ titulo, data }) => {
             ))}
           </svg>
 
-          {/* Barras (renderizadas por cima do background, mas abaixo do svg zIndex para linha sobrepor) */}
           <div
             style={{
               display: "flex",
@@ -169,6 +190,13 @@ const GraficoDeBarras = ({ titulo, data }) => {
                 0,
                 Math.min(100, (p.valor / maxValor) * 100)
               );
+              // mostrar original caso tenha sido dividido
+              const mostraOriginal =
+                isIdeb && divisor > 1 && p.rawValor !== undefined;
+              const titleText = mostraOriginal
+                ? `${p.ano}: ${p.valor.toFixed(2)} (orig: ${p.rawValor})`
+                : `${p.ano}: ${p.valor.toFixed(2)}`;
+
               return (
                 <div key={p.ano} className={styles.barGroup}>
                   <div className={styles.barWrapper}>
@@ -179,7 +207,7 @@ const GraficoDeBarras = ({ titulo, data }) => {
                         backgroundColor: colors[index % colors.length],
                         zIndex: 0,
                       }}
-                      title={`${p.ano}: ${p.valor}`}
+                      title={titleText}
                     />
                   </div>
                   <span className={styles.barLabel}>{p.ano}</span>
@@ -194,7 +222,7 @@ const GraficoDeBarras = ({ titulo, data }) => {
 };
 
 // ==========================================================
-// COMPONENTE PRINCIPAL — DetalhesEscola
+// COMPONENTE PRINCIPAL — DetalhesEscola (mesmo que antes)
 // ==========================================================
 export default function DetalhesEscola({ escola, onVoltar }) {
   const [user, setUser] = useState(null);
@@ -204,7 +232,6 @@ export default function DetalhesEscola({ escola, onVoltar }) {
 
   const ADMIN_UID = "e55942f2-87c9-4811-9a0b-0841e8a39733";
 
-  // GET USER
   useEffect(() => {
     async function getUser() {
       const { data } = await supabase.auth.getUser();
@@ -214,7 +241,6 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     getUser();
   }, []);
 
-  // FETCH RESULTADOS
   async function fetchResultados() {
     setLoading(true);
     try {
@@ -237,7 +263,6 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     if (escola?.id) fetchResultados();
   }, [escola?.id]);
 
-  // FORM STATE
   const [avaliacao, setAvaliacao] = useState("");
   const [ano, setAno] = useState(new Date().getFullYear());
   const [serie, setSerie] = useState("");
@@ -289,7 +314,6 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     }
   };
 
-  // --- AGRUPAR por AVALIAÇÃO / SÉRIE / DISCIPLINA (sem ano)
   const grupos = useMemo(() => {
     const map = {};
     resultados.forEach((r) => {
@@ -297,24 +321,22 @@ export default function DetalhesEscola({ escola, onVoltar }) {
         return String(str)
           .trim()
           .toLowerCase()
-          .normalize("NFD") // remove acentos
-          .replace(/[\u0300-\u036f]/g, "") // remove acentos 2
-          .replace(/[º°]/g, "o") // normaliza 9º para 9o
-          .replace(/\s+/g, " "); // evita espaços duplos
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[º°]/g, "o")
+          .replace(/\s+/g, " ");
       }
 
       const chave = `${normalizar(r.avaliacao)} - ${normalizar(
         r.serie
       )} - ${normalizar(r.disciplina)}`;
       if (!map[chave]) map[chave] = [];
-      // push raw objeto (mantendo ano e valor)
       map[chave].push({
         ...r,
         ano: Number(r.ano),
         valor_indice: Number(r.valor_indice ?? 0),
       });
     });
-    // Ordenar cada lista por ano
     Object.keys(map).forEach((k) => {
       map[k].sort((a, b) => a.ano - b.ano);
     });
@@ -331,15 +353,12 @@ export default function DetalhesEscola({ escola, onVoltar }) {
         <small>INEP: {escola?.codigo_inep}</small>
       </div>
 
-      {/* GRÁFICOS */}
       <div className={styles.graficosContainer}>
         {loading ? (
           <p>Carregando gráficos...</p>
         ) : Object.keys(grupos).length > 0 ? (
           Object.entries(grupos).map(([chave, dados]) => {
-            // titulo do gráfico e dados no formato esperado
             const titulo = chave;
-            // dados já ordenados por ano
             const dadosFormatados = dados.map((d) => ({
               ano: d.ano,
               valor_indice: d.valor_indice,
@@ -360,7 +379,6 @@ export default function DetalhesEscola({ escola, onVoltar }) {
         )}
       </div>
 
-      {/* FORMULÁRIO + LISTA */}
       <div className={painelStyles.contentRow}>
         {canEdit && (
           <form onSubmit={handleAddResultado} className={styles.cardForm}>
@@ -417,7 +435,6 @@ export default function DetalhesEscola({ escola, onVoltar }) {
           </form>
         )}
 
-        {/* LISTA DE RESULTADOS */}
         <div className={canEdit ? styles.cardList : styles.cardListFullWidth}>
           <h3>Todos os Resultados</h3>
 
