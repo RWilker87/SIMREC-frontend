@@ -6,12 +6,12 @@ import styles from "./DetalhesEscola.module.css";
 import painelStyles from "./PainelPrincipal.module.css";
 
 // ==========================================================
-// COMPONENTE DE GRÁFICO — BARRAS + LINHA (MIX) (AJUSTADO IDEB/IDEPE)
+// COMPONENTE DE GRÁFICO — BARRAS + LINHA (MIX)
 // ==========================================================
 const GraficoDeBarras = ({ titulo, data }) => {
   if (!data || data.length === 0) return null;
 
-  // --- dados brutos (ordenados por ano externamente) ---
+  // --- dados brutos ---
   const rawPontos = data.map((d) => ({
     ano: d.ano,
     rawValor: Number(d.valor_indice ?? 0),
@@ -22,7 +22,6 @@ const GraficoDeBarras = ({ titulo, data }) => {
 
   function formatarTitulo(titulo) {
     if (!titulo) return "";
-
     let novo = titulo.trim();
     novo = novo.replace(/[-–—]+/g, " - ");
     novo = novo.replace(/\s+/g, " ");
@@ -35,18 +34,17 @@ const GraficoDeBarras = ({ titulo, data }) => {
   const primeira = rawPontos[0] || {};
   const serie = (primeira.serie || "").toString().toLowerCase();
   const avaliacao = (primeira.avaliacao || "").toString().toLowerCase();
-  // Detecta IDEB/IDEPE no campo e também no título
   const tituloLower = titulo.toLowerCase();
+
   const isIdeb =
     tituloLower.includes("ideb") ||
     tituloLower.includes("idepe") ||
     avaliacao.includes("ideb") ||
     avaliacao.includes("idepe");
 
-  // FORCE escala 0-10 para IDEB/IDEPE
+  // Define a escala máxima
   let maxValor = 10;
   if (!isIdeb) {
-    // comportamento antigo para outras avaliações
     if (serie.includes("2")) maxValor = 1000;
     else if (serie.includes("5") || serie.includes("9")) maxValor = 500;
     else maxValor = 10;
@@ -54,51 +52,45 @@ const GraficoDeBarras = ({ titulo, data }) => {
     maxValor = 10;
   }
 
-  // --- Nova normalização robusta para IDEB/IDEPE ---
-  // Se isIdeb: detectar rawMax e escolher divisor (1,10,100,1000...)
-  // tal que rawMax / divisor <= 10 (ou divisor kept minimal)
+  // Normalização para IDEB
   let divisor = 1;
   if (isIdeb) {
     const rawMax = Math.max(
       ...rawPontos.map((p) => Math.abs(p.rawValor || 0)),
       0
     );
-    // Evita divisor = 0 e garante que valores como 75 -> 7.5, 750 -> 7.5, etc.
     while (rawMax / divisor > 10) {
       divisor *= 10;
-      // safety: prevent infinite loop (não necessário, mas seguro)
       if (divisor > 1e9) break;
     }
-    // se rawMax estiver entre 11 e 99 e divisor stayed 1, a regra acima fará divisor=10
-    // (ex: rawMax=50 -> divisor=10 -> 50/10 = 5)
   }
 
   const pontos = rawPontos.map((p) => {
     let v = p.rawValor;
     if (isIdeb && divisor > 1) v = v / divisor;
-    // se divisor === 1 e isIdeb, mantemos v (caso já esteja 0-10)
-    // cap entre 0 e maxValor
     v = Math.max(0, Math.min(v, maxValor));
     return { ...p, valor: v };
   });
 
-  // marcadores para eixo Y
+  // Marcadores do Eixo Y
   const gerarMarcadores = () => {
-    if (maxValor === 10) return [10, 7.5, 5, 2.5, 0];
-    if (maxValor === 500) return [500, 375, 250, 125, 0];
-    return [1000, 750, 500, 250, 0];
+    if (maxValor === 10) return [10, 8, 6, 4, 2, 0];
+    if (maxValor === 500) return [500, 400, 300, 200, 100, 0];
+    return [1000, 800, 600, 400, 200, 0];
   };
   const marcadores = gerarMarcadores();
 
-  // cores (ciclo)
-  const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#0088FE"];
+  // Cores modernas
+  const colors = ["#6366f1", "#8b5cf6", "#ec4899", "#f43f5e", "#10b981"];
 
-  // --- Gerar pontos para svg (percentuais) ---
+  // --- CORREÇÃO DO ALINHAMENTO SVG ---
+  // Calcula a posição X baseada no centro da barra (flex space-around)
   const svgPoints = useMemo(() => {
     const n = pontos.length;
     if (n === 0) return [];
     return pontos.map((p, i) => {
-      const x = n === 1 ? 50 : (i / (n - 1)) * 100;
+      // Fórmula para space-around: o centro do item i está em ((i + 0.5) / n) * 100%
+      const x = ((i + 0.5) / n) * 100;
       const y = 100 - (Math.min(p.valor, maxValor) / maxValor) * 100;
       return { x, y, valor: p.valor, ano: p.ano, rawValor: p.rawValor };
     });
@@ -113,102 +105,82 @@ const GraficoDeBarras = ({ titulo, data }) => {
     <div className={styles.graficoCard}>
       <h3>{formatarTitulo(titulo)}</h3>
 
-      <div className={styles.chartContainer}>
+      <div className={styles.chartWrapper}>
+        {/* Eixo Y */}
         <div className={styles.yAxis}>
           {marcadores.map((m) => (
-            <span key={m}>{m}</span>
+            <div key={m} className={styles.yLabel}>
+              {m}
+            </div>
           ))}
         </div>
 
-        <div className={styles.chartContent} style={{ position: "relative" }}>
+        {/* Área do Gráfico */}
+        <div className={styles.chartArea}>
+          {/* Camada SVG (Linhas e Pontos) */}
           <svg
+            className={styles.svgLayer}
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              zIndex: 2,
-            }}
-            aria-hidden="true"
           >
-            {marcadores.map((m, idx) => {
+            {/* Linhas de Grade */}
+            {marcadores.map((m) => {
               const y = 100 - (m / maxValor) * 100;
               return (
                 <line
-                  key={`grid-${idx}`}
+                  key={`grid-${m}`}
                   x1="0"
                   x2="100"
-                  y1={`${y}`}
-                  y2={`${y}`}
-                  stroke="#f3f3f3"
-                  strokeWidth="0.3"
+                  y1={y}
+                  y2={y}
+                  className={styles.gridLine}
                 />
               );
             })}
 
+            {/* Linha de tendência */}
             {polylineStr && (
-              <polyline
-                points={polylineStr}
-                fill="none"
-                stroke="#333"
-                strokeWidth="0.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity="0.9"
-              />
+              <polyline points={polylineStr} className={styles.trendLine} />
             )}
 
+            {/* Pontos na linha */}
             {svgPoints.map((pt, i) => (
               <circle
                 key={`p-${i}`}
-                cx={`${pt.x}`}
-                cy={`${pt.y}`}
-                r={1.4}
-                fill="#222"
-                stroke="#fff"
-                strokeWidth="0.3"
+                cx={pt.x}
+                cy={pt.y}
+                r={1.5}
+                className={styles.trendPoint}
               />
             ))}
           </svg>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "space-around",
-              height: "100%",
-              width: "100%",
-              zIndex: 1,
-            }}
-          >
+          {/* Camada de Barras (HTML) */}
+          <div className={styles.barsLayer}>
             {pontos.map((p, index) => {
               const heightPercent = Math.max(
                 0,
                 Math.min(100, (p.valor / maxValor) * 100)
               );
-              // mostrar original caso tenha sido dividido
               const mostraOriginal =
                 isIdeb && divisor > 1 && p.rawValor !== undefined;
-              const titleText = mostraOriginal
-                ? `${p.ano}: ${p.valor.toFixed(2)} (orig: ${p.rawValor})`
-                : `${p.ano}: ${p.valor.toFixed(2)}`;
+              const valorTexto = mostraOriginal
+                ? p.rawValor
+                : p.valor.toFixed(2);
 
               return (
-                <div key={p.ano} className={styles.barGroup}>
-                  <div className={styles.barWrapper}>
-                    <div
-                      className={styles.bar}
-                      style={{
-                        height: `${heightPercent}%`,
-                        backgroundColor: colors[index % colors.length],
-                        zIndex: 0,
-                      }}
-                      title={titleText}
-                    />
+                <div key={p.ano} className={styles.barColumn}>
+                  {/* Tooltip simples ao passar o mouse */}
+                  <div
+                    className={styles.barFill}
+                    style={{
+                      height: `${heightPercent}%`,
+                      background: `linear-gradient(180deg, ${
+                        colors[index % colors.length]
+                      } 0%, ${colors[index % colors.length]}aa 100%)`,
+                    }}
+                  >
+                    <span className={styles.barTooltip}>{valorTexto}</span>
                   </div>
                   <span className={styles.barLabel}>{p.ano}</span>
                 </div>
@@ -222,7 +194,7 @@ const GraficoDeBarras = ({ titulo, data }) => {
 };
 
 // ==========================================================
-// COMPONENTE PRINCIPAL — DetalhesEscola (mesmo que antes)
+// COMPONENTE PRINCIPAL
 // ==========================================================
 export default function DetalhesEscola({ escola, onVoltar }) {
   const [user, setUser] = useState(null);
@@ -386,7 +358,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
 
             <input
               type="text"
-              placeholder="Avaliação (SAEB, IDEB, IDEPE...)"
+              placeholder="Avaliação (SAEB, IDEB...)"
               value={avaliacao}
               onChange={(e) => setAvaliacao(e.target.value)}
               className={styles.input}
@@ -410,7 +382,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
 
             <input
               type="text"
-              placeholder="Série (2º Ano, 5º Ano, 9º Ano)"
+              placeholder="Série (ex: 5º Ano)"
               value={serie}
               onChange={(e) => setSerie(e.target.value)}
               className={styles.input}
