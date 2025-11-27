@@ -36,25 +36,36 @@ const GraficoDeBarras = ({ titulo, data }) => {
   const avaliacao = (primeira.avaliacao || "").toString().toLowerCase();
   const tituloLower = titulo.toLowerCase();
 
+  // Verifica tipos de avaliação
   const isIdeb =
     tituloLower.includes("ideb") ||
     tituloLower.includes("idepe") ||
     avaliacao.includes("ideb") ||
     avaliacao.includes("idepe");
 
+  // NOVO: Verifica se é Fluência
+  const isFluencia =
+    tituloLower.includes("fluencia") ||
+    tituloLower.includes("fluência") ||
+    avaliacao.includes("fluencia") ||
+    avaliacao.includes("fluência");
+
   // Define a escala máxima
   let maxValor = 10;
-  if (!isIdeb) {
+
+  if (isFluencia) {
+    maxValor = 100; // Escala de 0 a 100 para Fluência
+  } else if (!isIdeb) {
     if (serie.includes("2")) maxValor = 1000;
     else if (serie.includes("5") || serie.includes("9")) maxValor = 500;
     else maxValor = 10;
   } else {
-    maxValor = 10;
+    maxValor = 10; // Padrão IDEB
   }
 
-  // Normalização para IDEB
+  // Normalização para IDEB (apenas se não for fluência)
   let divisor = 1;
-  if (isIdeb) {
+  if (isIdeb && !isFluencia) {
     const rawMax = Math.max(
       ...rawPontos.map((p) => Math.abs(p.rawValor || 0)),
       0
@@ -68,12 +79,16 @@ const GraficoDeBarras = ({ titulo, data }) => {
   const pontos = rawPontos.map((p) => {
     let v = p.rawValor;
     if (isIdeb && divisor > 1) v = v / divisor;
+
+    // Garante que não ultrapasse o máximo visualmente
     v = Math.max(0, Math.min(v, maxValor));
+
     return { ...p, valor: v };
   });
 
   // Marcadores do Eixo Y
   const gerarMarcadores = () => {
+    if (isFluencia) return [100, 80, 60, 40, 20, 0]; // Marcadores de porcentagem
     if (maxValor === 10) return [10, 8, 6, 4, 2, 0];
     if (maxValor === 500) return [500, 400, 300, 200, 100, 0];
     return [1000, 800, 600, 400, 200, 0];
@@ -84,12 +99,10 @@ const GraficoDeBarras = ({ titulo, data }) => {
   const colors = ["#6366f1", "#8b5cf6", "#ec4899", "#f43f5e", "#10b981"];
 
   // --- CORREÇÃO DO ALINHAMENTO SVG ---
-  // Calcula a posição X baseada no centro da barra (flex space-around)
   const svgPoints = useMemo(() => {
     const n = pontos.length;
     if (n === 0) return [];
     return pontos.map((p, i) => {
-      // Fórmula para space-around: o centro do item i está em ((i + 0.5) / n) * 100%
       const x = ((i + 0.5) / n) * 100;
       const y = 100 - (Math.min(p.valor, maxValor) / maxValor) * 100;
       return { x, y, valor: p.valor, ano: p.ano, rawValor: p.rawValor };
@@ -110,6 +123,9 @@ const GraficoDeBarras = ({ titulo, data }) => {
         <div className={styles.yAxis}>
           {marcadores.map((m) => (
             <div key={m} className={styles.yLabel}>
+              {/* Se for fluência, pode adicionar % no eixo se quiser, 
+                  mas manter limpo (apenas números) costuma ser melhor. 
+                  Vamos manter números. */}
               {m}
             </div>
           ))}
@@ -162,11 +178,17 @@ const GraficoDeBarras = ({ titulo, data }) => {
                 0,
                 Math.min(100, (p.valor / maxValor) * 100)
               );
-              const mostraOriginal =
-                isIdeb && divisor > 1 && p.rawValor !== undefined;
-              const valorTexto = mostraOriginal
-                ? p.rawValor
-                : p.valor.toFixed(2);
+
+              // Lógica de texto do Tooltip
+              let valorTexto;
+              if (isFluencia) {
+                // Formatação de Porcentagem (ex: 72%)
+                valorTexto = `${Math.round(p.valor)}%`;
+              } else {
+                const mostraOriginal =
+                  isIdeb && divisor > 1 && p.rawValor !== undefined;
+                valorTexto = mostraOriginal ? p.rawValor : p.valor.toFixed(2);
+              }
 
               return (
                 <div key={p.ano} className={styles.barColumn}>
@@ -289,30 +311,24 @@ export default function DetalhesEscola({ escola, onVoltar }) {
   const grupos = useMemo(() => {
     const map = {};
     resultados.forEach((r) => {
-      // Normalização mais agressiva para garantir chaves idênticas.
+      // Normalização agressiva para garantir chaves idênticas
       function normalizar(str) {
-        return (
-          String(str)
-            .trim()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-            .replace(/[º°]/g, "o") // Troca indicadores ordinais (5º -> 5o)
-            // NOVO: Remove TODOS os caracteres que não são letras ou números.
-            .replace(/[^a-z0-9]/g, "")
-        );
+        return String(str)
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[º°]/g, "o")
+          .replace(/[^a-z0-9]/g, "");
       }
 
-      // A chave agora é gerada a partir da concatenação das strings canônicas.
       const chave = `${normalizar(r.avaliacao)}-${normalizar(
         r.serie
       )}-${normalizar(r.disciplina)}`;
 
-      // Usa a chave canônica para agrupar
       if (!map[chave]) {
         map[chave] = {
           dados: [],
-          // Usa os dados do primeiro item para gerar o título formatado.
           tituloOriginal: `${r.avaliacao} - ${r.serie} - ${r.disciplina}`,
         };
       }
@@ -324,15 +340,13 @@ export default function DetalhesEscola({ escola, onVoltar }) {
       });
     });
 
-    // Transforma o mapa em um array e ordena os dados de cada grupo
     Object.keys(map).forEach((k) => {
       map[k].dados.sort((a, b) => a.ano - b.ano);
     });
 
-    // Retorna a lista de grupos (agora um Array) para renderização
     return Object.entries(map).map(([chave, grupo]) => ({
       chave,
-      titulo: grupo.tituloOriginal, // Mantém o título original para exibição
+      titulo: grupo.tituloOriginal,
       dados: grupo.dados,
     }));
   }, [resultados]);
@@ -351,7 +365,6 @@ export default function DetalhesEscola({ escola, onVoltar }) {
         {loading ? (
           <p>Carregando gráficos...</p>
         ) : grupos.length > 0 ? (
-          // CORREÇÃO: Itera diretamente sobre o array 'grupos'
           grupos.map((grupo) => {
             const titulo = grupo.titulo;
             const dadosFormatados = grupo.dados.map((d) => ({
@@ -381,7 +394,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
 
             <input
               type="text"
-              placeholder="Avaliação (SAEB, IDEB...)"
+              placeholder="Avaliação (SAEB, Fluência, IDEB...)"
               value={avaliacao}
               onChange={(e) => setAvaliacao(e.target.value)}
               className={styles.input}
@@ -405,7 +418,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
 
             <input
               type="text"
-              placeholder="Série (ex: 5º Ano)"
+              placeholder="Série (ex: 2º Ano)"
               value={serie}
               onChange={(e) => setSerie(e.target.value)}
               className={styles.input}
@@ -414,7 +427,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
             <input
               type="number"
               step="0.01"
-              placeholder="Nota / Índice"
+              placeholder="Nota / Índice (ex: 72 para 72%)"
               value={valorIndice}
               onChange={(e) => setValorIndice(e.target.value)}
               className={styles.input}
