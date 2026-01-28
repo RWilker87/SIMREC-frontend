@@ -1,47 +1,53 @@
-/* src/components/Dashboard.module.css (Totalmente substituído) */
-
 .layoutContainer {
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background-color: #ffffff; /* Fundo branco */
-  color: #1a1a1a; /* Texto escuro */
+  background-color: var(--bg-color);
+  font-family: var(--font-body);
 }
 
 /* 1. Sidebar (Menu Lateral) */
 .sidebar {
-  width: 260px;
-  background-color: #ffffff;
-  border-right: 1px solid #e7e7e7;
-  padding: 24px;
+  width: 280px;
+  background-color: var(--surface-color);
+  border-right: none;
+  padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
+  box-shadow: var(--shadow-soft);
+  z-index: 10;
+  border-top-right-radius: var(--border-radius-lg);
+  border-bottom-right-radius: var(--border-radius-lg);
+  margin: var(--spacing-sm) 0 var(--spacing-sm) var(--spacing-sm);
+  height: calc(100vh - 16px);
 }
 
 .logo {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  font-size: 1.5em;
+  justify-content: center;
+  font-family: var(--font-title-friendly);
+  font-size: 1.2em;
   font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 30px;
+  color: var(--primary-color);
+  margin-bottom: 40px;
+  text-align: center;
 }
 
-.logo span {
-  display: inline-block;
-  background-color: #646cff;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  margin-right: 10px;
+.logoImg {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  margin-bottom: 10px;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .navItem,
@@ -49,67 +55,74 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
-  border-radius: 6px;
+  padding: 14px 20px;
+  border-radius: var(--border-radius-md);
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s, color 0.2s;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
 }
 
 .navItem {
-  color: #555;
+  color: var(--text-color);
   background-color: transparent;
 }
 
 .navItem:hover {
-  background-color: #f4f4f4;
-  color: #1a1a1a;
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
+  transform: translateX(4px);
 }
 
 .navItemAtivo {
-  background-color: #f0f1ff; /* Fundo azul claro */
-  color: #646cff; /* Cor principal */
+  background-color: var(--primary-color);
+  color: var(--white);
+  box-shadow: var(--shadow-soft);
 }
 
 .perfilSidebar {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-top: 1px solid #e7e7e7;
+  border-top: 2px solid var(--bg-secondary);
   padding-top: 20px;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background-color: #646cff;
-  color: white;
+  background-color: var(--secondary-color);
+  color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   flex-shrink: 0;
+  font-family: var(--font-title-friendly);
+  border: 2px solid var(--white);
+  box-shadow: var(--shadow-soft);
 }
 
 .perfilInfo {
   display: flex;
   flex-direction: column;
   line-height: 1.3;
-  /* Garante que o email não quebre o layout */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .perfilNome {
-  font-weight: 600;
-  color: #1a1a1a;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: var(--font-title-friendly);
 }
 
 .perfilEmail {
   font-size: 0.85em;
-  color: #777;
+  color: var(--text-color);
+  opacity: 0.8;
 }
 
 /* 2. Conteúdo Principal */
@@ -117,44 +130,52 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #f9fafb; /* Fundo cinza bem claro */
+  background-color: transparent;
+  /* Usa o fundo do container (amarelo) */
+  /* Adiciona textura orgânica de fundo se desejar, ou herda do global */
 }
 
 /* 2a. Header (Cabeçalho) */
 .header {
-  height: 70px;
-  border-bottom: 1px solid #e7e7e7;
-  background-color: #ffffff;
-  padding: 0 30px;
+  height: 80px;
+  background-color: var(--primary-color);
+  padding: 0 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: var(--shadow-soft);
+  margin: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-sm);
+  border-radius: var(--border-radius-lg);
+  color: var(--white);
 }
 
 .menuUsuario {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--white);
 }
 
 .logoutButton {
-  background-color: #f4f4f4;
-  color: #333;
-  border: 1px solid #ddd;
-  padding: 8px 14px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  border: 2px solid transparent;
+  padding: 8px 16px;
   font-size: 0.9em;
-  font-weight: 600;
+  font-weight: 700;
+  border-radius: var(--border-radius-md);
+  transition: all 0.2s;
 }
 
 .logoutButton:hover {
-  background-color: #e9e9e9;
-  border-color: #ccc;
+  background-color: var(--white);
+  color: var(--primary-color);
 }
 
 /* 2b. Área da Página */
 .pagina {
-  padding: 30px;
-  overflow-y: auto; /* Permite scroll se o conteúdo for grande */
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  flex: 1;
 }
