@@ -1,68 +1,99 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Paleta de Cores - Capoeiras Institucional */
+  --bg-color: #FFC107; /* Amarelo vibrante de fundo */
+  --bg-secondary: #FFECB3; /* Amarelo claro para áreas secundárias */
+  --primary-color: #D32F2F; /* Vermelho institucional (títulos, botões) */
+  --primary-hover: #B71C1C; /* Vermelho mais escuro para hover */
+  --secondary-color: #FB8C00; /* Laranja para destaques */
+  --secondary-hover: #EF6C00;
+  --detail-color: #2E7D32; /* Verde detalhe */
+  --text-color: #37474F; /* Cinza escuro para texto (contraste) */
+  --text-light: #F5F5F5; /* Branco/Claro para texto sobre vermelho */
+  --white: #FFFFFF;
+  --surface-color: #FFFFFF; /* Cor dos cards */
+  --danger-color: #C62828;
+  
+  /* Fontes */
+  --font-title-main: 'Montserrat Alternates', sans-serif; /* Títulos principais */
+  --font-title-friendly: 'Fredoka', sans-serif; /* Títulos amigáveis/destaques */
+  --font-body: 'Poppins', sans-serif; /* Texto geral */
+  --font-reading: 'Roboto', sans-serif; /* Textos densos */
 
-  color: #213547;
-  background-color: #ffffff;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Espaçamentos e Formas */
+  --border-radius-lg: 20px;
+  --border-radius-md: 12px;
+  --border-radius-sm: 8px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --shadow-soft: 0 4px 15px rgba(0,0,0,0.08);
+  --shadow-hover: 0 6px 20px rgba(0,0,0,0.12);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+* {
+  box-sizing: border-box;
 }
 
-/* body não tem mais display: flex, corrigindo o corte */
 body {
-  background-color: #ffffff;
-  color: #213547;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  background-image: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-secondary) 100%);
+  color: var(--text-color);
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title-main);
+  color: var(--primary-color);
+  margin-bottom: 0.5em;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 2.5rem;
+  font-family: var(--font-title-friendly);
+}
+
+p, span, li {
+  line-height: 1.6;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--primary-hover);
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #f9f9f9;
+  font-family: var(--font-title-friendly);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border: none;
+  outline: none;
 }
 
-/* #root não tem mais display: flex, corrigindo o corte */
-#root {
-  width: 100%;
-  height: 100%;
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
 }
