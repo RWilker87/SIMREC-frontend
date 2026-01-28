@@ -95,8 +95,8 @@ const GraficoDeBarras = ({ titulo, data }) => {
   };
   const marcadores = gerarMarcadores();
 
-  // Cores modernas
-  const colors = ["#6366f1", "#8b5cf6", "#ec4899", "#f43f5e", "#10b981"];
+  // Cores institucionais SUAVIZADAS para gráficos
+  const colors = ["#E57373", "#FFB74D", "#FFF176", "#81C784", "#64B5F6"];
 
   // --- CORREÇÃO DO ALINHAMENTO SVG ---
   const svgPoints = useMemo(() => {
@@ -197,9 +197,8 @@ const GraficoDeBarras = ({ titulo, data }) => {
                     className={styles.barFill}
                     style={{
                       height: `${heightPercent}%`,
-                      background: `linear-gradient(180deg, ${
-                        colors[index % colors.length]
-                      } 0%, ${colors[index % colors.length]}aa 100%)`,
+                      background: `linear-gradient(180deg, ${colors[index % colors.length]
+                        } 0%, ${colors[index % colors.length]}aa 100%)`,
                     }}
                   >
                     <span className={styles.barTooltip}>{valorTexto}</span>
@@ -354,11 +353,13 @@ export default function DetalhesEscola({ escola, onVoltar }) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
+        <div className={styles.titleArea}>
+          <h1>{escola?.nome_escola}</h1>
+          <small>INEP: {escola?.codigo_inep}</small>
+        </div>
         <button onClick={onVoltar} className={styles.voltarButton}>
           &larr; Voltar
         </button>
-        <h1>{escola?.nome_escola}</h1>
-        <small>INEP: {escola?.codigo_inep}</small>
       </div>
 
       <div className={styles.graficosContainer}>
