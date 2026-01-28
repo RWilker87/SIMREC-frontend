@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"; // Importa o useEffect
 import { supabase } from "../supabaseClient";
 import styles from "./Dashboard.module.css";
 import DetalhesEscola from "./DetalhesEscola.jsx";
+import logo from "../assets/logo.png";
+import logoSecretaria from "../assets/seducLogo.png";
 
 // Importa os ícones
 const IconDashboard = () => <span>📊</span>;
@@ -80,7 +82,8 @@ export default function Dashboard({ session }) {
       <aside className={styles.sidebar}>
         <div>
           <div className={styles.logo}>
-            <span>S</span> SIMREC
+            <img src={logo} alt="SIMREC Logo" className={styles.logoImg} />
+            <span style={{ fontSize: '0.9em' }}>SIMREC</span>
           </div>
           <nav className={styles.nav}>
             {/* Link comum para o Dashboard */}
