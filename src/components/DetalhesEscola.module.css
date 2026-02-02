@@ -1,147 +1,271 @@
-/* src/components/DetalhesEscola.module.css */
+/* ===================================================================
+   REDESIGN COMPLETO - PÁGINA DE DETALHES DA ESCOLA
+   Layout moderno 2 colunas com header sticky e pills navigation
+   =================================================================== */
 
-.container {
-  width: 100%;
+/* --- PAGE CONTAINER --- */
+
+.pageContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #FFC107 0%, #FFECB3 100%);
+  padding-bottom: 2rem;
 }
 
-/* Header Compactado */
-.header {
-  margin-bottom: var(--spacing-md);
-  border-bottom: 2px solid var(--bg-secondary);
-  padding-bottom: var(--spacing-sm);
+/* --- STICKY HEADER --- */
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-}
-
-.titleArea {
-  display: flex;
-  flex-direction: column;
-}
-
-.header h1 {
-  font-size: 1.8em;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin: 0;
-  font-family: var(--font-title-friendly);
-  line-height: 1.2;
-}
-
-.header small {
-  font-size: 0.9em;
-  color: var(--text-color);
-  font-weight: 500;
-  opacity: 0.8;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .voltarButton {
-  background: var(--surface-color);
-  border: 1px solid var(--bg-secondary);
+  background: transparent;
+  border: 2px solid var(--primary-color);
   color: var(--primary-color);
   font-weight: 700;
-  font-size: 0.85em;
-  padding: 6px 14px;
-  cursor: pointer;
+  font-size: 0.95em;
+  padding: 8px 20px;
   border-radius: var(--border-radius-md);
   transition: all 0.2s;
   font-family: var(--font-title-friendly);
-  height: fit-content;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .voltarButton:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--primary-color);
+  color: var(--white);
   transform: translateX(-4px);
 }
 
-/* --- ESTILOS DE GRÁFICO OTIMIZADOS --- */
-
-.graficosContainer {
-  display: grid;
-  /* Grid de 2 ou 3 colunas dependendo do espaço, mas fixando tamanho mínimo para consistência */
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
-  width: 100%;
+.schoolTitle {
+  flex: 1;
+  font-size: 1.5em;
+  color: var(--primary-color);
+  margin: 0;
+  font-family: var(--font-title-friendly);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.graficoCard {
-  background-color: var(--surface-color);
-  padding: 32px;
-  border-radius: var(--border-radius-lg);
-  border: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-  /* Sombra mais suave */
+.inepBadge {
+  background: var(--bg-secondary);
+  color: var(--text-color);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* --- MAIN LAYOUT (2 COLUNAS) --- */
+
+.mainLayout {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* --- MAIN CONTENT (70%) --- */
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  /* Garante que o conteúdo se espalhe */
-  height: 480px;
-  /* Altura fixa para todos os cards */
+  gap: 20px;
+}
+
+.loadingState,
+.noDataState {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.noDataState p {
+  font-size: 1.2em;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.noDataState small {
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+/* --- CHART NAVIGATION (PILLS) --- */
+
+.chartNavigation {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pillsContainer {
+  flex: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 4px 0;
+  scrollbar-color: var(--secondary-color) transparent;
+}
+
+.pillsContainer::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pillsContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pillsContainer::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: 3px;
+}
+
+.pillsContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+.pill {
+  background: #F5F5F5;
+  border: 2px solid transparent;
+  color: var(--text-color);
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.pill:hover {
+  background: #E0E0E0;
+  transform: translateY(-2px);
+}
+
+.pillActive {
+  background: var(--primary-color);
+  color: var(--white);
+  border-color: var(--primary-color);
+}
+
+.pillActive:hover {
+  background: var(--primary-hover);
+}
+
+.chartCounter {
+  background: var(--bg-secondary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 700;
+  color: var(--text-color);
+  white-space: nowrap;
+  font-family: var(--font-title-friendly);
+}
+
+/* --- CHART DISPLAY AREA --- */
+
+.chartDisplayArea {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* --- CHART CARD (GRÁFICO) - DESIGN MINIMALISTA --- */
+
+.graficoCard {
+  width: 100%;
+  background-color: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
 }
 
 .graficoCard h3 {
   margin-top: 0;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   font-size: 1.1em;
   color: var(--primary-color);
   text-align: center;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: var(--font-title-friendly);
-  height: 2.4em;
-  /* Altura fixa para 2 linhas de título */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.2;
+  letter-spacing: 1.2px;
+  font-family: var(--font-body);
+  line-height: 1.4;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Wrapper */
 .chartWrapper {
   display: flex;
   width: 100%;
   flex-grow: 1;
-  /* Ocupa o resto do espaço do card */
-  /* Ajuste para garantir espaço abaixo sem sobrar */
+  padding: 20px 0;
 }
 
-/* Eixo Y */
 .yAxis {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-right: 16px;
+  padding-right: 20px;
   text-align: right;
   font-size: 0.85em;
-  color: var(--text-color);
-  font-weight: 600;
-  opacity: 0.7;
-  margin-top: -8px;
-  margin-bottom: 20px;
-  /* Espaço para labels do eixo X */
+  color: #90A4AE;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 36px;
   min-width: 45px;
+  font-family: var(--font-body);
 }
 
 .yLabel {
-  height: 12px;
-  line-height: 12px;
+  height: 14px;
+  line-height: 14px;
 }
 
-/* Área do Gráfico */
 .chartArea {
   position: relative;
   flex-grow: 1;
-  border-left: 2px solid #EEEEEE;
-  /* Linha mais discreta */
-  border-bottom: 2px solid #EEEEEE;
-  margin-bottom: 24px;
-  /* Espaço extra para labels */
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 36px;
+  padding: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.01) 100%);
 }
 
-/* SVG Layer */
 .svgLayer {
   position: absolute;
   left: 0;
@@ -154,31 +278,34 @@
 }
 
 .gridLine {
-  stroke: #f5f5f5;
-  /* Grade muito sutil */
+  stroke: rgba(0, 0, 0, 0.03);
   stroke-width: 1;
+  stroke-dasharray: 4 4;
 }
 
 .trendLine {
   fill: none;
-  stroke: var(--detail-color);
-  stroke-width: 4;
-  /* Linha mais grossa */
+  stroke: #2E7D32;
+  stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 1;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.1));
+  opacity: 0.9;
+  filter: drop-shadow(0 1px 2px rgba(46, 125, 50, 0.15));
 }
 
 .trendPoint {
   fill: #fff;
-  stroke: var(--detail-color);
-  stroke-width: 3;
-  r: 4;
-  /* Ponto maior */
+  stroke: #2E7D32;
+  stroke-width: 2;
+  r: 3.5;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
+  transition: r 0.2s ease;
 }
 
-/* Camada das Barras */
+.trendPoint:hover {
+  r: 5;
+}
+
 .barsLayer {
   display: flex;
   justify-content: space-around;
@@ -187,7 +314,7 @@
   height: 100%;
   position: relative;
   z-index: 5;
-  padding-bottom: 2px;
+  padding: 0 8px 4px 8px;
 }
 
 .barColumn {
@@ -197,46 +324,56 @@
   justify-content: flex-end;
   height: 100%;
   width: 100%;
-  /* Ocupa espaço disponível proporcionalmente */
   position: relative;
-  margin: 0 4px;
-  /* Espaçamento entre barras */
+  margin: 0 6px;
 }
 
 .barFill {
-  width: 60%;
-  /* Largura da barra relativa à coluna */
-  max-width: 40px;
+  width: 70%;
+  max-width: 45px;
   border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   cursor: pointer;
-  opacity: 0.85;
-  /* Cores um pouco mais suaves */
+  opacity: 0.75;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .barFill:hover {
   opacity: 1;
-  transform: scaleY(1.02);
+  transform: scaleY(1.02) translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .barTooltip {
   position: absolute;
-  top: -36px;
+  top: -42px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--text-color);
+  background-color: rgba(55, 71, 79, 0.95);
   color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.9em;
-  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.95em;
+  font-weight: 600;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.25s ease;
   pointer-events: none;
   white-space: nowrap;
   z-index: 20;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-family: var(--font-body);
+  letter-spacing: 0.5px;
+}
+
+.barTooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(55, 71, 79, 0.95);
 }
 
 .barFill:hover .barTooltip {
@@ -245,75 +382,114 @@
 
 .barLabel {
   position: absolute;
-  bottom: -30px;
-  font-size: 0.9em;
-  color: var(--text-color);
+  bottom: -32px;
+  font-size: 0.95em;
+  color: #546E7A;
   font-weight: 600;
-  opacity: 0.8;
+  letter-spacing: 0.5px;
+  font-family: var(--font-body);
 }
 
-.noData {
-  grid-column: 1 / -1;
-  text-align: center;
-  color: var(--text-color);
-  padding: 40px;
-  background-color: var(--surface-color);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-soft);
-}
+/* --- SIDEBAR (30%) --- */
 
-/* Formulário e Lista */
-.cardForm,
-.cardList,
-.cardListFullWidth {
-  background-color: var(--surface-color);
-  padding: 32px;
-  border-radius: var(--border-radius-lg);
-  border: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-}
-
-.cardForm {
+.sidebar {
+  width: 360px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  align-self: flex-start;
+  position: sticky;
+  top: 90px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-.cardList {
-  align-self: flex-start;
-  width: 100%;
-  box-sizing: border-box;
+.sidebar::-webkit-scrollbar {
+  width: 6px;
 }
 
-.cardListFullWidth {
-  align-self: flex-start;
-  width: 100%;
-  box-sizing: border-box;
-  grid-column: 1 / -1;
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: 3px;
 }
 
-.cardForm h3,
-.cardList h3,
-.cardListFullWidth h3 {
-  margin-top: 0;
-  margin-bottom: 24px;
-  font-size: 1.3em;
+/* --- SIDEBAR CARDS --- */
+
+.infoCard,
+.adminCard,
+.resultsCard {
+  background: var(--white);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.infoCard h3,
+.adminCard h3,
+.resultsCard h3 {
+  margin: 0 0 16px 0;
+  font-size: 1em;
   color: var(--primary-color);
-  text-align: left;
   font-family: var(--font-title-friendly);
-  border-bottom: 2px solid var(--bg-secondary);
-  padding-bottom: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Mantendo inputs e botões iguais */
+/* --- INFO CARD --- */
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.infoItem {
+  background: var(--bg-secondary);
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.infoLabel {
+  font-size: 0.8em;
+  color: var(--text-color);
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.infoValue {
+  font-size: 1.5em;
+  color: var(--primary-color);
+  font-weight: 700;
+  font-family: var(--font-title-friendly);
+}
+
+/* --- ADMIN CARD (FORM) --- */
+
+.compactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .input {
   width: 100%;
-  padding: 16px;
-  font-size: 1em;
+  padding: 10px 12px;
+  font-size: 0.9em;
   background-color: #FAFAFA;
   border: 2px solid #E0E0E0;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   box-sizing: border-box;
   color: var(--text-color);
   font-family: var(--font-body);
@@ -328,13 +504,13 @@
 }
 
 .addButton {
-  padding: 16px;
-  font-size: 1.1em;
+  padding: 12px;
+  font-size: 1em;
   font-weight: 700;
   color: var(--white);
   background-color: var(--primary-color);
   border: none;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
   transition: all 0.2s;
   text-transform: uppercase;
@@ -344,7 +520,7 @@
 .addButton:hover:not(:disabled) {
   background-color: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .addButton:disabled {
@@ -352,78 +528,170 @@
   cursor: not-allowed;
 }
 
-.list {
+/* --- RESULTS CARD (LIST) --- */
+
+.loadingText,
+.emptyText {
+  font-size: 0.9em;
+  color: var(--text-color);
+  opacity: 0.7;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.resultsList {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-.listItem {
+.resultItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  padding: 16px;
-  border: 1px solid var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-  background-color: #fff;
-  transition: transform 0.2s;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: var(--border-radius-sm);
+  background-color: #FAFAFA;
+  transition: all 0.2s;
 }
 
-.listItem:hover {
-  transform: translateX(4px);
+.resultItem:hover {
   border-color: var(--secondary-color);
+  background-color: #fff;
 }
 
-.listItem:last-child {
-  border-bottom: 1px solid var(--bg-secondary);
-}
-
-.resultadoInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-grow: 1;
+.resultInfo {
+  flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.resultadoInfo span:first-child {
-  font-size: 1em;
+.resultInfo strong {
+  font-size: 0.9em;
   color: var(--text-color);
+  font-weight: 700;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.resultadoInfo span strong {
-  display: block;
-  font-weight: 700;
-  color: var(--primary-color);
-  font-family: var(--font-title-friendly);
+.resultInfo small {
+  font-size: 0.8em;
+  color: var(--text-color);
+  opacity: 0.7;
 }
 
-.indiceValor {
-  font-size: 1.4em;
+.resultValue {
+  font-size: 1.2em;
   font-weight: 700;
   color: var(--detail-color);
-  padding-left: 16px;
-  white-space: nowrap;
   font-family: var(--font-title-friendly);
+  white-space: nowrap;
 }
 
 .deleteButton {
-  background-color: #FFEBEE;
-  color: var(--danger-color);
-  border: 1px solid #FFCDD2;
-  padding: 10px 16px;
-  border-radius: var(--border-radius-sm);
+  background: transparent;
+  border: none;
+  padding: 6px;
   cursor: pointer;
-  font-size: 0.9em;
-  font-weight: 700;
+  font-size: 1.2em;
+  opacity: 0.6;
   transition: all 0.2s;
   flex-shrink: 0;
-  white-space: nowrap;
+}
+
+.deleteButton:hover:not(:disabled) {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.deleteButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* --- RESPONSIVIDADE --- */
+
+@media (max-width: 1024px) {
+  .mainLayout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: relative;
+    top: 0;
+    max-height: none;
+    order: 2;
+  }
+
+  .mainContent {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .stickyHeader {
+    padding: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .schoolTitle {
+    font-size: 1.2em;
+    width: 100%;
+    order: 2;
+  }
+
+  .voltarButton {
+    order: 1;
+  }
+
+  .inepBadge {
+    order: 3;
+    margin-left: auto;
+  }
+
+  .mainLayout {
+    padding: 0 1rem;
+  }
+
+  .chartNavigation {
+    padding: 12px;
+  }
+
+  .pillsContainer {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .pill {
+    flex-shrink: 0;
+  }
+
+  .chartDisplayArea {
+    padding: 20px;
+  }
+
+  .graficoCard {
+    min-height: 400px;
+  }
+
+  .graficoCard h3 {
+    font-size: 1em;
+    margin-bottom: 20px;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
 }
