@@ -261,6 +261,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
   const [serie, setSerie] = useState("");
   const [valorIndice, setValorIndice] = useState("");
   const [disciplina, setDisciplina] = useState("");
+  const [selectedGrafico, setSelectedGrafico] = useState(0);
 
   const handleAddResultado = async (e) => {
     e.preventDefault();
@@ -350,140 +351,205 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     }));
   }, [resultados]);
 
+  // Calcula último ano com dados
+  const ultimoAno = useMemo(() => {
+    if (resultados.length === 0) return "-";
+    const anos = resultados.map((r) => r.ano).sort((a, b) => b - a);
+    return anos[0];
+  }, [resultados]);
+
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.titleArea}>
-          <h1>{escola?.nome_escola}</h1>
-          <small>INEP: {escola?.codigo_inep}</small>
-        </div>
+    <div className={styles.pageContainer}>
+      {/* Header Sticky */}
+      <header className={styles.stickyHeader}>
         <button onClick={onVoltar} className={styles.voltarButton}>
-          &larr; Voltar
+          ← Voltar
         </button>
-      </div>
+        <h1 className={styles.schoolTitle}>{escola?.nome_escola}</h1>
+        <span className={styles.inepBadge}>INEP: {escola?.codigo_inep}</span>
+      </header>
 
-      <div className={styles.graficosContainer}>
-        {loading ? (
-          <p>Carregando gráficos...</p>
-        ) : grupos.length > 0 ? (
-          grupos.map((grupo) => {
-            const titulo = grupo.titulo;
-            const dadosFormatados = grupo.dados.map((d) => ({
-              ano: d.ano,
-              valor_indice: d.valor_indice,
-              avaliacao: d.avaliacao,
-              serie: d.serie,
-              disciplina: d.disciplina,
-            }));
-            return (
-              <GraficoDeBarras
-                key={grupo.chave}
-                titulo={titulo}
-                data={dadosFormatados}
-              />
-            );
-          })
-        ) : (
-          <p className={styles.noData}>Nenhum dado disponível.</p>
-        )}
-      </div>
-
-      <div className={painelStyles.contentRow}>
-        {canEdit && (
-          <form onSubmit={handleAddResultado} className={styles.cardForm}>
-            <h3>Adicionar Novo Resultado</h3>
-
-            <input
-              type="text"
-              placeholder="Avaliação (SAEB, Fluência, IDEB...)"
-              value={avaliacao}
-              onChange={(e) => setAvaliacao(e.target.value)}
-              className={styles.input}
-            />
-
-            <input
-              type="text"
-              placeholder="Disciplina"
-              value={disciplina}
-              onChange={(e) => setDisciplina(e.target.value)}
-              className={styles.input}
-            />
-
-            <input
-              type="number"
-              placeholder="Ano"
-              value={ano}
-              onChange={(e) => setAno(e.target.value)}
-              className={styles.input}
-            />
-
-            <input
-              type="text"
-              placeholder="Série (ex: 2º Ano)"
-              value={serie}
-              onChange={(e) => setSerie(e.target.value)}
-              className={styles.input}
-            />
-
-            <input
-              type="number"
-              step="0.01"
-              placeholder="Nota / Índice (ex: 72 para 72%)"
-              value={valorIndice}
-              onChange={(e) => setValorIndice(e.target.value)}
-              className={styles.input}
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className={styles.addButton}
-            >
-              {loading ? "Salvando..." : "Adicionar"}
-            </button>
-          </form>
-        )}
-
-        <div className={canEdit ? styles.cardList : styles.cardListFullWidth}>
-          <h3>Todos os Resultados</h3>
-
+      {/* Main Layout - 2 Colunas */}
+      <div className={styles.mainLayout}>
+        {/* Coluna Principal - Gráficos */}
+        <main className={styles.mainContent}>
           {loading ? (
-            <p>Carregando...</p>
-          ) : resultados.length === 0 ? (
-            <p>Nenhum resultado cadastrado.</p>
+            <div className={styles.loadingState}>
+              <p>Carregando gráficos...</p>
+            </div>
+          ) : grupos.length > 0 ? (
+            <>
+              {/* Chart Navigation - Pills */}
+              <div className={styles.chartNavigation}>
+                <div className={styles.pillsContainer}>
+                  {grupos.map((grupo, index) => (
+                    <button
+                      key={grupo.chave}
+                      className={`${styles.pill} ${selectedGrafico === index ? styles.pillActive : ""
+                        }`}
+                      onClick={() => setSelectedGrafico(index)}
+                      title={grupo.titulo}
+                    >
+                      {grupo.titulo}
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.chartCounter}>
+                  {selectedGrafico + 1} / {grupos.length}
+                </div>
+              </div>
+
+              {/* Chart Display Area */}
+              <div className={styles.chartDisplayArea}>
+                {(() => {
+                  const grupo = grupos[selectedGrafico];
+                  if (!grupo) return null;
+
+                  const titulo = grupo.titulo;
+                  const dadosFormatados = grupo.dados.map((d) => ({
+                    ano: d.ano,
+                    valor_indice: d.valor_indice,
+                    avaliacao: d.avaliacao,
+                    serie: d.serie,
+                    disciplina: d.disciplina,
+                  }));
+
+                  return (
+                    <GraficoDeBarras
+                      key={grupo.chave}
+                      titulo={titulo}
+                      data={dadosFormatados}
+                    />
+                  );
+                })()}
+              </div>
+            </>
           ) : (
-            <ul className={styles.list}>
-              {resultados.map((r) => (
-                <li key={r.id} className={styles.listItem}>
-                  <div className={styles.resultadoInfo}>
-                    <span>
+            <div className={styles.noDataState}>
+              <p>📊 Nenhum gráfico disponível para esta escola.</p>
+              <small>Adicione resultados usando o formulário ao lado.</small>
+            </div>
+          )}
+        </main>
+
+        {/* Sidebar - Info e Administração */}
+        <aside className={styles.sidebar}>
+          {/* Info Card */}
+          <div className={styles.infoCard}>
+            <h3>📋 Informações</h3>
+            <div className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Total de Gráficos</span>
+                <span className={styles.infoValue}>{grupos.length}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Último Ano</span>
+                <span className={styles.infoValue}>{ultimoAno}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Resultados</span>
+                <span className={styles.infoValue}>{resultados.length}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Admin Form */}
+          {canEdit && (
+            <div className={styles.adminCard}>
+              <h3>➕ Adicionar Resultado</h3>
+              <form onSubmit={handleAddResultado} className={styles.compactForm}>
+                <input
+                  type="text"
+                  placeholder="Avaliação"
+                  value={avaliacao}
+                  onChange={(e) => setAvaliacao(e.target.value)}
+                  className={styles.input}
+                />
+
+                <input
+                  type="text"
+                  placeholder="Disciplina"
+                  value={disciplina}
+                  onChange={(e) => setDisciplina(e.target.value)}
+                  className={styles.input}
+                />
+
+                <div className={styles.inputRow}>
+                  <input
+                    type="number"
+                    placeholder="Ano"
+                    value={ano}
+                    onChange={(e) => setAno(e.target.value)}
+                    className={styles.input}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Série"
+                    value={serie}
+                    onChange={(e) => setSerie(e.target.value)}
+                    className={styles.input}
+                  />
+                </div>
+
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Valor"
+                  value={valorIndice}
+                  onChange={(e) => setValorIndice(e.target.value)}
+                  className={styles.input}
+                />
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={styles.addButton}
+                >
+                  {loading ? "Salvando..." : "Adicionar"}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Results List */}
+          <div className={styles.resultsCard}>
+            <h3>📚 Todos os Resultados</h3>
+            {loading ? (
+              <p className={styles.loadingText}>Carregando...</p>
+            ) : resultados.length === 0 ? (
+              <p className={styles.emptyText}>Nenhum resultado cadastrado.</p>
+            ) : (
+              <ul className={styles.resultsList}>
+                {resultados.map((r) => (
+                  <li key={r.id} className={styles.resultItem}>
+                    <div className={styles.resultInfo}>
                       <strong>
                         {r.disciplina} - {r.avaliacao}
                       </strong>
                       <small>
                         {r.ano} - {r.serie}
                       </small>
-                    </span>
-
-                    <span className={styles.indiceValor}>
+                    </div>
+                    <span className={styles.resultValue}>
                       {r.valor_indice?.toFixed(2) || "N/A"}
                     </span>
-                  </div>
-
-                  {canEdit && (
-                    <button
-                      className={styles.deleteButton}
-                      onClick={() => handleDeleteResultado(r.id)}
-                      disabled={loading}
-                    >
-                      Deletar
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                    {canEdit && (
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => handleDeleteResultado(r.id)}
+                        disabled={loading}
+                        title="Deletar"
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </aside>
       </div>
     </div>
   );
