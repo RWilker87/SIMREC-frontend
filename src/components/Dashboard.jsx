@@ -169,8 +169,14 @@ export default function Dashboard({ session }) {
 
         {/* 3. LÓGICA DE RENDERIZAÇÃO ATUALIZADA */}
         <main className={styles.pagina}>
-          {/* Rota comum para todos */}
-          {paginaAtiva === "dashboard" && <PainelPrincipal />}
+          {/* Rota comum para todos - AGORA COM PROPS */}
+          {paginaAtiva === "dashboard" && (
+            <PainelPrincipal
+              session={session}
+              isAdmin={isAdmin}
+              minhaEscola={!isAdmin ? minhaEscola : null}
+            />
+          )}
 
           {/* Rotas exclusivas do ADMIN */}
           {isAdmin && paginaAtiva === "escolas" && (
