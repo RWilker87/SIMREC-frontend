@@ -118,23 +118,123 @@
   padding: 16px 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chartNavHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.chartNavTitle {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--primary-color);
+  font-family: var(--font-title-friendly);
+}
+
+.chartNavSubtitle {
+  margin: 4px 0 0;
+  color: var(--text-color);
+  opacity: 0.8;
+  font-size: 0.88rem;
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.filterLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.filterInput,
+.filterSelect {
+  width: 100%;
+  min-width: 0;
+  border: 2px solid #e6e6e6;
+  border-radius: 10px;
+  background: #fafafa;
+  color: var(--text-color);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  padding: 10px 12px;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.filterInput:focus,
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(251, 140, 0, 0.12);
+  background: #fff;
+}
+
+.filtersActions {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filterSummary {
+  font-size: 0.85rem;
+  color: var(--text-color);
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+.clearFiltersButton {
+  border: 1px solid rgba(211, 47, 47, 0.25);
+  background: #fff5f5;
+  color: var(--primary-color);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clearFiltersButton:hover:not(:disabled) {
+  background: #ffe8e8;
+  border-color: rgba(211, 47, 47, 0.45);
+}
+
+.clearFiltersButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .pillsContainer {
-  flex: 1;
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
-  overflow-x: auto;
+  max-height: 280px;
+  overflow-y: auto;
   scrollbar-width: thin;
-  padding: 4px 0;
+  padding: 2px;
   scrollbar-color: var(--secondary-color) transparent;
 }
 
 .pillsContainer::-webkit-scrollbar {
-  height: 6px;
+  width: 6px;
 }
 
 .pillsContainer::-webkit-scrollbar-track {
@@ -151,34 +251,54 @@
 }
 
 .pill {
-  background: #F5F5F5;
+  background: #f8f8f8;
   border: 2px solid transparent;
   color: var(--text-color);
-  padding: 10px 18px;
-  border-radius: 20px;
+  padding: 12px 14px;
+  border-radius: 14px;
   font-size: 0.85em;
   font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-  text-align: center;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
 .pill:hover {
-  background: #E0E0E0;
+  background: #efefef;
   transform: translateY(-2px);
+  border-color: rgba(251, 140, 0, 0.35);
 }
 
 .pillActive {
   background: var(--primary-color);
   color: var(--white);
   border-color: var(--primary-color);
+  box-shadow: 0 6px 16px rgba(211, 47, 47, 0.2);
 }
 
 .pillActive:hover {
   background: var(--primary-hover);
+}
+
+.pillTitle {
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pillMeta {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chartCounter {
@@ -190,6 +310,17 @@
   color: var(--text-color);
   white-space: nowrap;
   font-family: var(--font-title-friendly);
+}
+
+.emptyFilterState {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--text-color);
 }
 
 /* --- CHART DISPLAY AREA --- */
@@ -637,6 +768,10 @@
   .mainContent {
     order: 1;
   }
+
+  .filtersGrid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -669,13 +804,35 @@
     padding: 12px;
   }
 
+  .chartNavHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chartCounter {
+    align-self: flex-start;
+  }
+
+  .filtersGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
   .pillsContainer {
-    overflow-x: auto;
-    flex-wrap: nowrap;
+    grid-template-columns: 1fr;
+    max-height: 320px;
   }
 
   .pill {
-    flex-shrink: 0;
+    padding: 12px;
+  }
+
+  .filtersActions {
+    align-items: stretch;
+  }
+
+  .clearFiltersButton {
+    width: 100%;
   }
 
   .chartDisplayArea {
