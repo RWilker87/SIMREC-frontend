@@ -262,6 +262,10 @@ export default function DetalhesEscola({ escola, onVoltar }) {
   const [valorIndice, setValorIndice] = useState("");
   const [disciplina, setDisciplina] = useState("");
   const [selectedGrafico, setSelectedGrafico] = useState(0);
+  const [filtroBusca, setFiltroBusca] = useState("");
+  const [filtroAvaliacao, setFiltroAvaliacao] = useState("todas");
+  const [filtroSerie, setFiltroSerie] = useState("todas");
+  const [filtroDisciplina, setFiltroDisciplina] = useState("todas");
 
   const handleAddResultado = async (e) => {
     e.preventDefault();
@@ -330,6 +334,9 @@ export default function DetalhesEscola({ escola, onVoltar }) {
         map[chave] = {
           dados: [],
           tituloOriginal: `${r.avaliacao} - ${r.serie} - ${r.disciplina}`,
+          avaliacao: r.avaliacao || "Sem avaliação",
+          serie: r.serie || "Sem série",
+          disciplina: r.disciplina || "Sem disciplina",
         };
       }
 
@@ -347,9 +354,56 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     return Object.entries(map).map(([chave, grupo]) => ({
       chave,
       titulo: grupo.tituloOriginal,
+      avaliacao: grupo.avaliacao,
+      serie: grupo.serie,
+      disciplina: grupo.disciplina,
       dados: grupo.dados,
     }));
   }, [resultados]);
+
+  const opcoesFiltros = useMemo(() => {
+    const sortAlpha = (a, b) =>
+      String(a).localeCompare(String(b), "pt-BR", { sensitivity: "base" });
+
+    return {
+      avaliacoes: [...new Set(grupos.map((g) => g.avaliacao))].sort(sortAlpha),
+      series: [...new Set(grupos.map((g) => g.serie))].sort(sortAlpha),
+      disciplinas: [...new Set(grupos.map((g) => g.disciplina))].sort(sortAlpha),
+    };
+  }, [grupos]);
+
+  const gruposFiltrados = useMemo(() => {
+    const termo = filtroBusca.trim().toLowerCase();
+
+    return grupos.filter((grupo) => {
+      const matchAvaliacao =
+        filtroAvaliacao === "todas" || grupo.avaliacao === filtroAvaliacao;
+      const matchSerie = filtroSerie === "todas" || grupo.serie === filtroSerie;
+      const matchDisciplina =
+        filtroDisciplina === "todas" || grupo.disciplina === filtroDisciplina;
+
+      const textoBusca = `${grupo.titulo} ${grupo.avaliacao} ${grupo.serie} ${grupo.disciplina}`.toLowerCase();
+      const matchBusca = !termo || textoBusca.includes(termo);
+
+      return matchAvaliacao && matchSerie && matchDisciplina && matchBusca;
+    });
+  }, [grupos, filtroBusca, filtroAvaliacao, filtroSerie, filtroDisciplina]);
+
+  useEffect(() => {
+    if (selectedGrafico > 0 && selectedGrafico >= gruposFiltrados.length) {
+      setSelectedGrafico(0);
+    }
+  }, [selectedGrafico, gruposFiltrados.length]);
+
+  const grupoAtual = gruposFiltrados[selectedGrafico] || null;
+
+  const limparFiltros = () => {
+    setFiltroBusca("");
+    setFiltroAvaliacao("todas");
+    setFiltroSerie("todas");
+    setFiltroDisciplina("todas");
+    setSelectedGrafico(0);
+  };
 
   // Calcula último ano com dados
   const ultimoAno = useMemo(() => {
@@ -381,29 +435,157 @@ export default function DetalhesEscola({ escola, onVoltar }) {
             <>
               {/* Chart Navigation - Pills */}
               <div className={styles.chartNavigation}>
+                <div className={styles.chartNavHeader}>
+                  <div>
+                    <h3 className={styles.chartNavTitle}>Selecionar prova</h3>
+                    <p className={styles.chartNavSubtitle}>
+                      Filtre por avaliação, série e disciplina para localizar o gráfico.
+                    </p>
+                  </div>
+                  <div className={styles.chartCounter}>
+                    {gruposFiltrados.length === 0 ? "0" : selectedGrafico + 1} / {gruposFiltrados.length}
+                  </div>
+                </div>
+
+                <div className={styles.filtersGrid}>
+                  <div className={styles.filterField}>
+                    <label className={styles.filterLabel} htmlFor="filtro-busca-prova">
+                      Buscar prova
+                    </label>
+                    <input
+                      id="filtro-busca-prova"
+                      type="text"
+                      className={styles.filterInput}
+                      placeholder="Ex.: SAEB, IDEB, Língua Portuguesa..."
+                      value={filtroBusca}
+                      onChange={(e) => {
+                        setFiltroBusca(e.target.value);
+                        setSelectedGrafico(0);
+                      }}
+                    />
+                  </div>
+
+                  <div className={styles.filterField}>
+                    <label className={styles.filterLabel} htmlFor="filtro-avaliacao">
+                      Avaliação
+                    </label>
+                    <select
+                      id="filtro-avaliacao"
+                      className={styles.filterSelect}
+                      value={filtroAvaliacao}
+                      onChange={(e) => {
+                        setFiltroAvaliacao(e.target.value);
+                        setSelectedGrafico(0);
+                      }}
+                    >
+                      <option value="todas">Todas</option>
+                      {opcoesFiltros.avaliacoes.map((opcao) => (
+                        <option key={opcao} value={opcao}>
+                          {opcao}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.filterField}>
+                    <label className={styles.filterLabel} htmlFor="filtro-serie">
+                      Série
+                    </label>
+                    <select
+                      id="filtro-serie"
+                      className={styles.filterSelect}
+                      value={filtroSerie}
+                      onChange={(e) => {
+                        setFiltroSerie(e.target.value);
+                        setSelectedGrafico(0);
+                      }}
+                    >
+                      <option value="todas">Todas</option>
+                      {opcoesFiltros.series.map((opcao) => (
+                        <option key={opcao} value={opcao}>
+                          {opcao}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.filterField}>
+                    <label className={styles.filterLabel} htmlFor="filtro-disciplina">
+                      Disciplina
+                    </label>
+                    <select
+                      id="filtro-disciplina"
+                      className={styles.filterSelect}
+                      value={filtroDisciplina}
+                      onChange={(e) => {
+                        setFiltroDisciplina(e.target.value);
+                        setSelectedGrafico(0);
+                      }}
+                    >
+                      <option value="todas">Todas</option>
+                      {opcoesFiltros.disciplinas.map((opcao) => (
+                        <option key={opcao} value={opcao}>
+                          {opcao}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.filtersActions}>
+                  <span className={styles.filterSummary}>
+                    {gruposFiltrados.length} prova{gruposFiltrados.length !== 1 ? "s" : ""} encontrada{gruposFiltrados.length !== 1 ? "s" : ""}
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.clearFiltersButton}
+                    onClick={limparFiltros}
+                    disabled={
+                      !filtroBusca &&
+                      filtroAvaliacao === "todas" &&
+                      filtroSerie === "todas" &&
+                      filtroDisciplina === "todas"
+                    }
+                  >
+                    Limpar filtros
+                  </button>
+                </div>
+
                 <div className={styles.pillsContainer}>
-                  {grupos.map((grupo, index) => (
+                  {gruposFiltrados.map((grupo, index) => (
                     <button
                       key={grupo.chave}
-                      className={`${styles.pill} ${selectedGrafico === index ? styles.pillActive : ""
-                        }`}
+                      className={`${styles.pill} ${selectedGrafico === index ? styles.pillActive : ""}`}
                       onClick={() => setSelectedGrafico(index)}
                       title={grupo.titulo}
                     >
-                      {grupo.titulo}
+                      <span className={styles.pillTitle}>{grupo.avaliacao}</span>
+                      <span className={styles.pillMeta}>
+                        {grupo.serie} • {grupo.disciplina}
+                      </span>
                     </button>
                   ))}
-                </div>
-                <div className={styles.chartCounter}>
-                  {selectedGrafico + 1} / {grupos.length}
                 </div>
               </div>
 
               {/* Chart Display Area */}
               <div className={styles.chartDisplayArea}>
                 {(() => {
-                  const grupo = grupos[selectedGrafico];
-                  if (!grupo) return null;
+                  const grupo = grupoAtual;
+                  if (!grupo) {
+                    return (
+                      <div className={styles.emptyFilterState}>
+                        <p>Nenhuma prova encontrada com os filtros selecionados.</p>
+                        <button
+                          type="button"
+                          className={styles.clearFiltersButton}
+                          onClick={limparFiltros}
+                        >
+                          Mostrar todas as provas
+                        </button>
+                      </div>
+                    );
+                  }
 
                   const titulo = grupo.titulo;
                   const dadosFormatados = grupo.dados.map((d) => ({
