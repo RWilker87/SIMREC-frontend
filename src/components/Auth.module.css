@@ -3,14 +3,20 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
   background-color: var(--bg-color);
   background-image:
     radial-gradient(circle at 10% 20%, var(--bg-secondary) 0%, transparent 20%),
-    radial-gradient(circle at 90% 80%, var(--secondary-color) 0%, transparent 25%);
+    radial-gradient(
+      circle at 90% 80%,
+      var(--secondary-color) 0%,
+      transparent 25%
+    );
   box-sizing: border-box;
   padding: var(--spacing-md);
+  gap: 16px;
+  overflow-y: auto;
 }
 
 .card {
@@ -23,7 +29,7 @@
   text-align: center;
   border: none;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Decorative top border */
@@ -50,6 +56,8 @@
   height: auto;
   margin: var(--spacing-lg) auto 0;
   opacity: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .subtitle {
@@ -83,13 +91,15 @@
   width: 100%;
   padding: 16px;
   font-size: 1em;
-  background-color: #FAFAFA;
-  border: 2px solid #E0E0E0;
+  background-color: #fafafa;
+  border: 2px solid #e0e0e0;
   border-radius: var(--border-radius-md);
   box-sizing: border-box;
   color: var(--text-color);
   font-family: var(--font-body);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .input:focus {
@@ -109,7 +119,9 @@
   border: none;
   border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: transform 0.1s, background-color 0.2s;
+  transition:
+    transform 0.1s,
+    background-color 0.2s;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 8px;
@@ -126,15 +138,31 @@
 }
 
 .button:disabled {
-  background-color: #BDBDBD;
+  background-color: #bdbdbd;
   cursor: not-allowed;
 }
 
 .footer {
-  margin-top: 30px;
+  margin-top: 0;
   text-align: center;
   color: var(--primary-color);
   font-weight: 600;
   font-size: 0.9em;
   opacity: 0.8;
+}
+
+@media (max-height: 760px) {
+  .auth-container {
+    justify-content: flex-start;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .card {
+    padding: 36px 24px;
+  }
+
+  .logo {
+    height: 120px;
+  }
 }

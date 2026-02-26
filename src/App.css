@@ -1,8 +1,6 @@
 #root {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Centraliza em tela cheia */
+  width: 100%;
+  min-height: 100vh;
 }
 
 .container {

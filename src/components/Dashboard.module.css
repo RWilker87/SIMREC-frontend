@@ -4,6 +4,7 @@
   min-height: 100vh;
   background-color: var(--bg-color);
   font-family: var(--font-body);
+  overflow-x: clip;
 }
 
 /* 1. Sidebar (Menu Lateral) */
@@ -128,6 +129,7 @@
 /* 2. Conteúdo Principal */
 .mainContent {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   background-color: transparent;
@@ -147,6 +149,7 @@
   margin: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-sm);
   border-radius: var(--border-radius-lg);
   color: var(--white);
+  min-width: 0;
 }
 
 .menuUsuario {
@@ -155,6 +158,7 @@
   gap: 16px;
   font-weight: 600;
   color: var(--white);
+  min-width: 0;
 }
 
 .logoutButton {
@@ -177,5 +181,59 @@
 .pagina {
   padding: var(--spacing-lg);
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .layoutContainer {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: auto;
+    height: auto;
+    margin: var(--spacing-sm);
+    border-radius: var(--border-radius-lg);
+  }
+
+  .header {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    padding: var(--spacing-md);
+  }
+
+  .logo {
+    margin-bottom: 24px;
+  }
+
+  .navItem,
+  .navItemAtivo {
+    padding: 12px 14px;
+  }
+
+  .header {
+    height: auto;
+    min-height: 72px;
+    padding: 12px 16px;
+    margin: 0 var(--spacing-sm);
+  }
+
+  .menuUsuario {
+    gap: 10px;
+    margin-left: auto;
+    font-size: 0.9rem;
+  }
+
+  .logoutButton {
+    padding: 8px 12px;
+  }
+
+  .pagina {
+    padding: var(--spacing-md);
+  }
 }
