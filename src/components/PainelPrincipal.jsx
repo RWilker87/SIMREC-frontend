@@ -1,8 +1,65 @@
-// src/components/PainelPrincipal.jsx (Redesign completo com personalização)
+// src/components/PainelPrincipal.jsx (Redesign completo com ícones SVG)
 
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "./PainelPrincipal.module.css";
+
+// Componentes de Ícones SVG unificados
+const IconSchool = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
+
+const IconBookOpen = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+);
+
+const IconCheckCircle = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const IconClipboard = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+  </svg>
+);
+
+const IconActivity = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
+
+const IconTarget = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
+const IconTrendingUp = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+    <polyline points="17 6 23 6 23 12" />
+  </svg>
+);
+
+const IconTrendingDown = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+    <polyline points="17 18 23 18 23 12" />
+  </svg>
+);
 
 export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
   const [loading, setLoading] = useState(true);
@@ -32,9 +89,9 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
     const diffDay = Math.round(diffHr / 24);
 
     if (diffMin < 1) return "Agora";
-    if (diffMin < 60) return `${diffMin}m`;
-    if (diffHr < 24) return `${diffHr}h`;
-    return `${diffDay}d`;
+    if (diffMin < 60) return `Há ${diffMin}m`;
+    if (diffHr < 24) return `Há ${diffHr}h`;
+    return `Há ${diffDay}d`;
   }
 
   // Busca dados do ADMIN
@@ -176,31 +233,54 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
   // Renderização Admin
   if (isAdmin) {
     return (
-      <div>
-        <h1>📊 Dashboard Administrativo</h1>
+      <div className={styles.container}>
+        <div className={styles.titleArea}>
+          <h1>Visão Geral do Município</h1>
+          <span className={styles.subtext}>Acompanhamento em tempo real dos índices de aprendizagem escolar</span>
+        </div>
 
         {/* KPI Cards Admin */}
         <div className={styles.kpiContainer}>
           <div className={`${styles.kpiCard} ${styles.kpiPrimary}`}>
-            <div className={styles.kpiIcon}>🏫</div>
+            <div className={styles.kpiHeaderRow}>
+              <div className={styles.kpiIconBubble}>
+                <IconSchool size={22} />
+              </div>
+              <span className={styles.kpiBadge}>SIMREC</span>
+            </div>
             <span className={styles.kpiValue}>{loading ? "..." : totalEscolas}</span>
             <span className={styles.kpiLabel}>Total de Escolas</span>
           </div>
 
           <div className={`${styles.kpiCard} ${styles.kpiSecondary}`}>
-            <div className={styles.kpiIcon}>📚</div>
+            <div className={styles.kpiHeaderRow}>
+              <div className={styles.kpiIconBubble}>
+                <IconBookOpen size={22} />
+              </div>
+              <span className={styles.kpiBadge}>Avaliações</span>
+            </div>
             <span className={styles.kpiValue}>{loading ? "..." : totalResultados}</span>
             <span className={styles.kpiLabel}>Resultados Lançados</span>
           </div>
 
           <div className={`${styles.kpiCard} ${styles.kpiSuccess}`}>
-            <div className={styles.kpiIcon}>✅</div>
+            <div className={styles.kpiHeaderRow}>
+              <div className={styles.kpiIconBubble}>
+                <IconCheckCircle size={22} />
+              </div>
+              <span className={styles.kpiBadge}>Frequência</span>
+            </div>
             <span className={styles.kpiValue}>{loading ? "..." : escolasAtivas}</span>
             <span className={styles.kpiLabel}>Escolas Ativas</span>
           </div>
 
           <div className={`${styles.kpiCard} ${styles.kpiInfo}`}>
-            <div className={styles.kpiIcon}>📋</div>
+            <div className={styles.kpiHeaderRow}>
+              <div className={styles.kpiIconBubble}>
+                <IconClipboard size={22} />
+              </div>
+              <span className={styles.kpiBadge}>Formatos</span>
+            </div>
             <span className={styles.kpiValue}>{loading ? "..." : totalAvaliacoes}</span>
             <span className={styles.kpiLabel}>Tipos de Avaliação</span>
           </div>
@@ -210,9 +290,12 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
         <div className={styles.contentRow}>
           {/* Resultados por Disciplina */}
           <div className={styles.contentCard}>
-            <h3>📊 Resultados por Disciplina</h3>
+            <div className={styles.cardHeader}>
+              <IconBookOpen size={18} />
+              <h3>Resultados por Disciplina</h3>
+            </div>
             {loading ? (
-              <p>Carregando...</p>
+              <div className={styles.cardLoading}><p>Carregando análises...</p></div>
             ) : resultadosPorDisciplina.length === 0 ? (
               <p className={styles.emptyState}>Nenhum dado disponível</p>
             ) : (
@@ -221,7 +304,9 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
                   <li key={disciplina.nome} className={styles.disciplinaItem}>
                     <div className={styles.disciplinaInfo}>
                       <strong>{disciplina.nome}</strong>
-                      <span className={styles.disciplinaMeta}>{disciplina.count} resultado{disciplina.count !== 1 ? 's' : ''}</span>
+                      <span className={styles.disciplinaMeta}>
+                        {disciplina.count} lançamento{disciplina.count !== 1 ? 's' : ''}
+                      </span>
                     </div>
                     <div className={styles.disciplinaBarra}>
                       <div
@@ -237,21 +322,25 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
 
           {/* Atividades Recentes */}
           <div className={styles.contentCard}>
-            <h3>⏱️ Atividades Recentes</h3>
+            <div className={styles.cardHeader}>
+              <IconActivity size={18} />
+              <h3>Atividades Recentes</h3>
+            </div>
             {loading ? (
-              <p>Carregando...</p>
+              <div className={styles.cardLoading}><p>Carregando atividades...</p></div>
             ) : (
               <ul className={styles.listaAtividades}>
                 {atividadesRecentes.length === 0 ? (
-                  <li>
-                    <strong>Nenhuma atividade recente</strong>
-                  </li>
+                  <li className={styles.emptyState}>Nenhuma atividade registrada hoje.</li>
                 ) : (
                   atividadesRecentes.map((atividade, index) => (
-                    <li key={index}>
-                      <strong>{atividade.titulo}</strong>
-                      <span className={styles.subtitulo}>{atividade.subtitulo}</span>
-                      <span className={styles.tempo}>{formatTempo(atividade.data)}</span>
+                    <li key={index} className={styles.atividadeItem}>
+                      <div className={styles.atividadeMarker} />
+                      <div className={styles.atividadeContent}>
+                        <strong>{atividade.titulo}</strong>
+                        <span className={styles.subtitulo}>{atividade.subtitulo}</span>
+                        <span className={styles.tempo}>{formatTempo(atividade.data)}</span>
+                      </div>
                     </li>
                   ))
                 )}
@@ -264,39 +353,66 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
   }
 
   // Renderização Gestor
+  const IsCrescimentoPositivo = crescimentoEscola >= 0;
+
   return (
-    <div>
+    <div className={styles.container}>
       <div className={styles.escolaHeader}>
-        <h1>🏫 {minhaEscola?.nome_escola || "Minha Escola"}</h1>
-        <span className={styles.escolaInep}>INEP: {minhaEscola?.codigo_inep || "N/A"}</span>
+        <div className={styles.escolaTitleGroup}>
+          <h1>{minhaEscola?.nome_escola || "Minha Escola"}</h1>
+          <span className={styles.escolaInep}>INEP: {minhaEscola?.codigo_inep || "N/A"}</span>
+        </div>
+        <span className={styles.headerTag}>Painel do Gestor</span>
       </div>
 
       {/* KPI Cards Gestor */}
       <div className={styles.kpiContainer}>
         <div className={`${styles.kpiCard} ${styles.kpiPrimary}`}>
-          <div className={styles.kpiIcon}>📚</div>
+          <div className={styles.kpiHeaderRow}>
+            <div className={styles.kpiIconBubble}>
+              <IconBookOpen size={22} />
+            </div>
+            <span className={styles.kpiBadge}>Banco</span>
+          </div>
           <span className={styles.kpiValue}>{loading ? "..." : resultadosEscola.length}</span>
           <span className={styles.kpiLabel}>Resultados Cadastrados</span>
         </div>
 
         <div className={`${styles.kpiCard} ${styles.kpiSuccess}`}>
-          <div className={styles.kpiIcon}>🎯</div>
+          <div className={styles.kpiHeaderRow}>
+            <div className={styles.kpiIconBubble}>
+              <IconTarget size={22} />
+            </div>
+            <span className={styles.kpiBadge}>Desempenho</span>
+          </div>
           <span className={styles.kpiValue}>{loading ? "..." : mediaEscola.toFixed(1)}</span>
           <span className={styles.kpiLabel}>Média da Escola</span>
         </div>
 
         <div className={`${styles.kpiCard} ${styles.kpiInfo}`}>
-          <div className={styles.kpiIcon}>📊</div>
+          <div className={styles.kpiHeaderRow}>
+            <div className={styles.kpiIconBubble}>
+              <IconSchool size={22} />
+            </div>
+            <span className={styles.kpiBadge}>Grade</span>
+          </div>
           <span className={styles.kpiValue}>{loading ? "..." : disciplinasEscola.length}</span>
           <span className={styles.kpiLabel}>Disciplinas Avaliadas</span>
         </div>
 
         <div className={`${styles.kpiCard} ${styles.kpiTrend}`}>
-          <div className={styles.kpiIcon}>{crescimentoEscola >= 0 ? "📈" : "📉"}</div>
+          <div className={styles.kpiHeaderRow}>
+            <div className={styles.kpiIconBubble}>
+              {IsCrescimentoPositivo ? <IconTrendingUp size={22} /> : <IconTrendingDown size={22} />}
+            </div>
+            <span className={`${styles.kpiTrendBadge} ${IsCrescimentoPositivo ? styles.kpiTrendBadgePositivo : styles.kpiTrendBadgeNegativo}`}>
+              {IsCrescimentoPositivo ? "Evolução" : "Alerta"}
+            </span>
+          </div>
           <span className={styles.kpiValue}>
-            {loading ? "..." : `${crescimentoEscola >= 0 ? "+" : ""}${crescimentoEscola.toFixed(1)}%`}
+            {loading ? "..." : `${IsCrescimentoPositivo ? "+" : ""}${crescimentoEscola.toFixed(1)}%`}
           </span>
-          <span className={crescimentoEscola >= 0 ? styles.kpiLabelPositivo : styles.kpiLabelNegativo}>
+          <span className={IsCrescimentoPositivo ? styles.kpiLabelPositivo : styles.kpiLabelNegativo}>
             Crescimento Anual
           </span>
         </div>
@@ -306,9 +422,12 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
       <div className={styles.contentRow}>
         {/* Distribuição por Disciplina */}
         <div className={styles.contentCard}>
-          <h3>📚 Disciplinas Avaliadas</h3>
+          <div className={styles.cardHeader}>
+            <IconBookOpen size={18} />
+            <h3>Disciplinas Avaliadas</h3>
+          </div>
           {loading ? (
-            <p>Carregando...</p>
+            <div className={styles.cardLoading}><p>Carregando dados da escola...</p></div>
           ) : disciplinasEscola.length === 0 ? (
             <p className={styles.emptyState}>Nenhuma disciplina avaliada ainda.</p>
           ) : (
@@ -317,7 +436,9 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
                 <li key={disciplina.nome} className={styles.disciplinaItem}>
                   <div className={styles.disciplinaInfo}>
                     <strong>{disciplina.nome}</strong>
-                    <span className={styles.disciplinaMeta}>{disciplina.count} resultado{disciplina.count !== 1 ? 's' : ''}</span>
+                    <span className={styles.disciplinaMeta}>
+                      {disciplina.count} lançamento{disciplina.count !== 1 ? 's' : ''}
+                    </span>
                   </div>
                   <div className={styles.disciplinaBarra}>
                     <div
@@ -333,9 +454,12 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
 
         {/* Últimas Avaliações */}
         <div className={styles.contentCard}>
-          <h3>📝 Últimas Avaliações</h3>
+          <div className={styles.cardHeader}>
+            <IconClipboard size={18} />
+            <h3>Últimas Avaliações</h3>
+          </div>
           {loading ? (
-            <p>Carregando...</p>
+            <div className={styles.cardLoading}><p>Buscando avaliações...</p></div>
           ) : ultimasAvaliacoes.length === 0 ? (
             <p className={styles.emptyState}>Nenhuma avaliação cadastrada ainda.</p>
           ) : (
@@ -344,7 +468,7 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
                 <li key={avaliacao.id} className={styles.avaliacaoItem}>
                   <div className={styles.avaliacaoInfo}>
                     <strong>{avaliacao.disciplina} - {avaliacao.avaliacao}</strong>
-                    <span>{avaliacao.ano} - {avaliacao.serie}</span>
+                    <span>Ano: {avaliacao.ano} | Série: {avaliacao.serie}</span>
                   </div>
                   <span className={styles.avaliacaoNota}>{avaliacao.valor_indice?.toFixed(1) || "N/A"}</span>
                 </li>

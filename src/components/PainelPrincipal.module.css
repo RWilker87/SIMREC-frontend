@@ -1,161 +1,305 @@
-/* src/components/PainelPrincipal.module.css */
+/* ===================================================================
+   REDESIGN COMPLETO - PAINEL PRINCIPAL DO DASHBOARD (SIMREC)
+   Interface em Cartões de Indicadores (KPIs) 3D, Cápsulas de Progresso & Timeline
+   =================================================================== */
 
-/* Header da escola para gestor */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* --- CABEÇALHOS DO PAINEL --- */
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.titleArea h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  font-family: var(--font-title-friendly);
+  letter-spacing: -0.5px;
+}
+
+.subtext {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Gestor School Header */
 .escolaHeader {
-  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
   padding-bottom: 20px;
-  border-bottom: 3px solid var(--secondary-color);
+  border-bottom: 2px solid rgba(15, 23, 42, 0.05);
+}
+
+.escolaTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .escolaHeader h1 {
-  margin: 0 0 8px 0;
-  color: var(--primary-color);
+  margin: 0;
+  color: #0f172a;
   font-family: var(--font-title-friendly);
-  font-size: 2em;
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .escolaInep {
-  display: inline-block;
-  background-color: var(--secondary-color);
-  color: var(--white);
-  padding: 4px 12px;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.9em;
-  font-weight: 600;
+  background-color: #f1f5f9;
+  color: #64748b;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  width: fit-content;
+  font-family: var(--font-body);
+  border: 1px solid #e2e8f0;
 }
 
-/* Cards de KPI (Key Performance Indicators) */
+.headerTag {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--secondary-hover);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --- CARDS DE INDICADORES (KPIs) --- */
 .kpiContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 24px;
 }
 
 .kpiCard {
-  background-color: var(--surface-color);
+  background: var(--white);
   padding: 24px;
-  border-radius: var(--border-radius-lg);
-  border: none;
-  box-shadow: var(--shadow-soft);
-  transition: all 0.3s ease;
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   position: relative;
   overflow: hidden;
-}
-
-.kpiCard::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .kpiCard:hover {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.08);
 }
 
-/* Variações de cores para diferentes tipos de KPI */
-.kpiPrimary::before {
-  background: var(--primary-color);
+.kpiHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.kpiSecondary::before {
-  background: var(--secondary-color);
+.kpiIconBubble {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-.kpiSuccess::before {
-  background: var(--detail-color);
+.kpiCard:hover .kpiIconBubble {
+  transform: scale(1.08) rotate(3deg);
 }
 
-.kpiInfo::before {
-  background: linear-gradient(90deg, #2196F3, #03A9F4);
-}
-
-.kpiTrend::before {
-  background: linear-gradient(90deg, var(--detail-color), #4CAF50);
-}
-
-.kpiIcon {
-  font-size: 2.5em;
-  margin-bottom: 12px;
-  display: block;
-  text-align: left;
-  filter: grayscale(20%);
+.kpiBadge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
 }
 
 .kpiValue {
   display: block;
-  font-size: 2.8em;
-  font-weight: 700;
-  color: var(--primary-color);
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #0f172a;
   font-family: var(--font-title-friendly);
   line-height: 1;
-  margin-bottom: 8px;
 }
 
 .kpiLabel {
   display: block;
-  font-size: 0.9em;
-  color: var(--text-color);
+  font-size: 0.85rem;
+  color: #64748b;
   font-weight: 600;
-  opacity: 0.8;
+}
+
+/* Custom color presets for KPI Cards */
+.kpiPrimary .kpiIconBubble {
+  background: rgba(211, 47, 47, 0.08);
+  color: var(--primary-color);
+}
+.kpiPrimary::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--primary-color);
+}
+
+.kpiSecondary .kpiIconBubble {
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--secondary-color);
+}
+.kpiSecondary::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--secondary-color);
+}
+
+.kpiSuccess .kpiIconBubble {
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--detail-color);
+}
+.kpiSuccess::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--detail-color);
+}
+
+.kpiInfo .kpiIconBubble {
+  background: rgba(33, 150, 243, 0.08);
+  color: #2196F3;
+}
+.kpiInfo::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #2196F3;
+}
+
+.kpiTrend .kpiIconBubble {
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--detail-color);
+}
+.kpiTrend::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--detail-color), #4caf50);
+}
+
+/* Evolution badges */
+.kpiTrendBadge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpiTrendBadgePositivo {
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--detail-color);
+}
+
+.kpiTrendBadgeNegativo {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger-color);
 }
 
 .kpiLabelPositivo {
-  display: block;
-  font-size: 0.9em;
+  font-size: 0.85rem;
   color: var(--detail-color);
   font-weight: 700;
 }
 
 .kpiLabelNegativo {
-  display: block;
-  font-size: 0.9em;
+  font-size: 0.85rem;
   color: var(--danger-color);
   font-weight: 700;
 }
 
-/* Content Row */
+
+/* --- 3. CONTEÚDO PRINCIPAL (GRIDS & CARDS) --- */
 .contentRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
 }
 
 .contentCard {
-  background-color: var(--surface-color);
-  padding: 24px;
-  border-radius: var(--border-radius-lg);
-  border: none;
-  box-shadow: var(--shadow-soft);
-  min-height: 300px;
+  background: var(--white);
+  padding: 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 320px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary-color);
 }
 
 .contentCard h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.4em;
-  color: var(--primary-color);
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
   font-family: var(--font-title-friendly);
-  position: relative;
-  display: inline-block;
 }
 
-.contentCard h3::after {
-  content: "";
-  display: block;
-  width: 40px;
-  height: 4px;
-  background-color: var(--secondary-color);
-  border-radius: 2px;
-  margin-top: 4px;
+.cardLoading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
-/* Lista de Disciplinas (Admin) */
+/* Disciplines Listing (Admin/Gestor) */
 .disciplinasList {
   list-style: none;
   padding: 0;
@@ -170,169 +314,115 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
+  background-color: rgba(254, 243, 199, 0.2);
+  border-radius: 16px;
   border-left: 4px solid var(--secondary-color);
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .disciplinaItem:hover {
   transform: translateX(4px);
-  box-shadow: var(--shadow-soft);
+  background-color: rgba(254, 243, 199, 0.35);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
 }
 
 .disciplinaInfo {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .disciplinaInfo strong {
   font-weight: 700;
-  color: var(--primary-color);
-  font-size: 1.05em;
+  color: #0f172a;
+  font-size: 0.95rem;
 }
 
 .disciplinaMeta {
-  font-size: 0.9em;
-  color: var(--text-color);
-  opacity: 0.8;
+  font-size: 0.8rem;
+  color: #64748b;
   font-weight: 600;
 }
 
 .disciplinaBarra {
-  position: relative;
   width: 100%;
   height: 8px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+  background-color: rgba(15, 23, 42, 0.06);
+  border-radius: 99px;
   overflow: hidden;
 }
 
 .disciplinaFill {
   height: 100%;
   background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-  border-radius: 4px;
-  transition: width 0.5s ease;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Atividades Recentes */
+/* Recent Activities Timeline (Admin) */
 .listaAtividades {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-.listaAtividades li {
+.atividadeItem {
   display: flex;
-  flex-direction: column;
-  padding-left: 20px;
+  gap: 16px;
   position: relative;
-  border-left: 3px solid var(--bg-secondary);
-  margin-left: 8px;
-  padding-bottom: 4px;
 }
 
-.listaAtividades li::before {
+.atividadeItem:not(:last-child)::after {
   content: "";
   position: absolute;
-  left: -8px;
-  top: 4px;
+  left: 6px;
+  top: 14px;
+  bottom: -22px;
+  width: 2px;
+  background-color: #f1f5f9;
+}
+
+.atividadeMarker {
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background-color: var(--secondary-color);
-  border: 3px solid var(--surface-color);
-  box-shadow: 0 0 0 2px var(--bg-secondary);
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+  flex-shrink: 0;
+  margin-top: 3px;
 }
 
-.listaAtividades li strong {
+.atividadeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.3;
+}
+
+.atividadeContent strong {
   font-weight: 700;
-  color: var(--primary-color);
-}
-
-.listaAtividades li span {
-  font-size: 0.95em;
-  color: var(--text-color);
-}
-
-.listaAtividades li .tempo {
-  font-size: 0.8em;
-  color: #777;
-  margin-top: 4px;
-  font-weight: 500;
+  color: #0f172a;
+  font-size: 0.95rem;
 }
 
 .subtitulo {
-  font-size: 0.9em;
-  color: #666;
-  font-style: italic;
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 500;
 }
 
-/* Comparação Escola vs Município (Gestor) */
-.comparacao {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.comparacaoItem {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.comparacaoLabel {
+.tempo {
+  font-size: 0.75rem;
+  color: #94a3b8;
   font-weight: 600;
-  color: var(--text-color);
-  font-size: 0.95em;
+  margin-top: 2px;
 }
 
-.comparacaoBarra {
-  position: relative;
-  width: 100%;
-  height: 40px;
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-}
-
-.comparacaoFill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--detail-color), #4CAF50);
-  border-radius: var(--border-radius-md);
-  transition: width 0.5s ease;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 12px;
-}
-
-.comparacaoMunicipio {
-  background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-}
-
-.comparacaoValor {
-  font-weight: 700;
-  color: var(--white);
-  font-size: 1.1em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.comparacaoStatus {
-  margin-top: 12px;
-  padding: 16px;
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-  font-size: 0.95em;
-  line-height: 1.5;
-}
-
-/* Lista de Avaliações (Gestor) */
+/* History Scores (Gestor) */
 .avaliacoesList {
   list-style: none;
   padding: 0;
@@ -346,16 +436,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius-md);
-  border-left: 4px solid var(--secondary-color);
-  transition: all 0.2s ease;
+  padding: 16px 20px;
+  background-color: #f8fafc;
+  border-radius: 16px;
+  border-left: 4px solid var(--primary-color);
+  border: 1px solid rgba(15, 23, 42, 0.03);
+  transition: all 0.25s ease;
 }
 
 .avaliacaoItem:hover {
   transform: translateX(4px);
-  box-shadow: var(--shadow-soft);
+  background-color: #f1f5f9;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
 }
 
 .avaliacaoInfo {
@@ -366,33 +458,45 @@
 
 .avaliacaoInfo strong {
   font-weight: 700;
-  color: var(--primary-color);
-  font-size: 1.05em;
+  color: #0f172a;
+  font-size: 0.95rem;
 }
 
 .avaliacaoInfo span {
-  font-size: 0.9em;
-  color: var(--text-color);
-  opacity: 0.8;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .avaliacaoNota {
-  font-size: 1.8em;
-  font-weight: 700;
+  font-size: 1.7rem;
+  font-weight: 800;
   color: var(--detail-color);
   font-family: var(--font-title-friendly);
+  line-height: 1;
 }
 
-/* Empty State */
+/* Empty States */
 .emptyState {
   text-align: center;
-  color: var(--text-color);
-  opacity: 0.6;
+  color: #64748b;
+  font-weight: 500;
   padding: 40px 20px;
   font-style: italic;
+  font-size: 0.9rem;
 }
 
-/* Responsividade */
+/* --- 4. ANIMATIONS --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- 5. RESPONSIVIDADE --- */
 @media (max-width: 768px) {
   .kpiContainer {
     grid-template-columns: 1fr;
@@ -407,15 +511,11 @@
   }
 
   .kpiValue {
-    font-size: 2.2em;
-  }
-
-  .kpiIcon {
-    font-size: 2em;
+    font-size: 2.3rem;
   }
 
   .avaliacaoNota {
-    font-size: 1.5em;
+    font-size: 1.45rem;
   }
 
   .disciplinaInfo {

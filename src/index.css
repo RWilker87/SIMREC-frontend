@@ -1,17 +1,17 @@
 :root {
-  /* Paleta de Cores - Capoeiras Institucional */
-  --bg-color: #FFC107; /* Amarelo vibrante de fundo */
-  --bg-secondary: #FFECB3; /* Amarelo claro para áreas secundárias */
-  --primary-color: #D32F2F; /* Vermelho institucional (títulos, botões) */
-  --primary-hover: #B71C1C; /* Vermelho mais escuro para hover */
-  --secondary-color: #FB8C00; /* Laranja para destaques */
-  --secondary-hover: #EF6C00;
-  --detail-color: #2E7D32; /* Verde detalhe */
-  --text-color: #37474F; /* Cinza escuro para texto (contraste) */
-  --text-light: #F5F5F5; /* Branco/Claro para texto sobre vermelho */
-  --white: #FFFFFF;
-  --surface-color: #FFFFFF; /* Cor dos cards */
-  --danger-color: #C62828;
+  /* Paleta de Cores - Capoeiras Institucional Refinada */
+  --bg-color: #fffdf5; /* Creme claro, quente e luminoso (amarelo ultra-suave) */
+  --bg-secondary: #fef3c7; /* Amarelo âmbar pastel elegante */
+  --primary-color: #d32f2f; /* Vermelho institucional (títulos, botões) */
+  --primary-hover: #b71c1c; /* Vermelho mais escuro para hover */
+  --secondary-color: #f59e0b; /* Âmbar/Dourado para destaques e contorno (mais nobre que laranja puro) */
+  --secondary-hover: #d97706;
+  --detail-color: #10b981; /* Verde esmeralda moderno para sucesso/detalhes */
+  --text-color: #1e293b; /* Slate-800 - Cinza escuro de alto contraste para leitura confortável */
+  --text-light: #64748b; /* Slate-500 - Texto secundário leve */
+  --white: #ffffff;
+  --surface-color: #ffffff; /* Cor dos cards */
+  --danger-color: #ef4444;
   
   /* Fontes */
   --font-title-main: 'Montserrat Alternates', sans-serif; /* Títulos principais */
@@ -20,14 +20,14 @@
   --font-reading: 'Roboto', sans-serif; /* Textos densos */
 
   /* Espaçamentos e Formas */
-  --border-radius-lg: 20px;
-  --border-radius-md: 12px;
+  --border-radius-lg: 24px;
+  --border-radius-md: 16px;
   --border-radius-sm: 8px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
-  --shadow-soft: 0 4px 15px rgba(0,0,0,0.08);
-  --shadow-hover: 0 6px 20px rgba(0,0,0,0.12);
+  --shadow-soft: 0 4px 20px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --shadow-hover: 0 12px 30px rgba(15, 23, 42, 0.1), 0 2px 4px rgba(15, 23, 42, 0.02);
 }
 
 * {

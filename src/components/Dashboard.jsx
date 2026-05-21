@@ -1,19 +1,29 @@
-// src/components/Dashboard.jsx (Totalmente atualizado com permissões)
+// src/components/Dashboard.jsx (Totalmente redesenhado com visual Premium)
 
-import { useState, useEffect } from "react"; // Importa o useEffect
+import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "./Dashboard.module.css";
 import DetalhesEscola from "./DetalhesEscola.jsx";
 import logo from "../assets/logo.png";
-import logoSecretaria from "../assets/seducLogo.png";
-
-// Importa os ícones
-const IconDashboard = () => <span>📊</span>;
-const IconEscolas = () => <span>🏫</span>;
-
-// Importa as "páginas"
 import GerenciarEscolas from "./GerenciarEscolas.jsx";
 import PainelPrincipal from "./PainelPrincipal.jsx";
+
+// Ícones SVG minimalistas e elegantes
+const IconDashboard = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="9" />
+    <rect x="14" y="3" width="7" height="5" />
+    <rect x="14" y="12" width="7" height="9" />
+    <rect x="3" y="16" width="7" height="5" />
+  </svg>
+);
+
+const IconEscolas = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
 
 // UID do Administrador
 const ADMIN_USER_ID = "e55942f2-87c9-4811-9a0b-0841e8a39733";
@@ -30,7 +40,7 @@ export default function Dashboard({ session }) {
 
   // --- State do Gestor ---
   const [minhaEscola, setMinhaEscola] = useState(null);
-  const [loadingEscola, setLoadingEscola] = useState(!isAdmin); // Começa carregando se NÃO for admin
+  const [loadingEscola, setLoadingEscola] = useState(!isAdmin);
 
   const handleLogout = async () => {
     try {
@@ -44,22 +54,20 @@ export default function Dashboard({ session }) {
     }
   };
 
-  // Função para o Admin voltar da tela de Detalhes para a Lista
   const handleVoltarParaLista = () => {
     setEscolaSelecionada(null);
   };
 
   // Busca a escola específica do GESTOR quando o componente carrega
   useEffect(() => {
-    // Roda apenas se o usuário NÃO for admin
     if (!isAdmin) {
       async function fetchMinhaEscola() {
         setLoadingEscola(true);
         const { data, error } = await supabase
           .from("escolas")
-          .select("*") // Pega todos os dados da escola
-          .eq("user_id", session.user.id) // Busca pela coluna que liga o usuário à escola
-          .single(); // Espera apenas um resultado
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single();
 
         if (error) {
           console.error("Erro ao buscar escola do gestor:", error.message);
@@ -70,78 +78,134 @@ export default function Dashboard({ session }) {
       }
       fetchMinhaEscola();
     }
-  }, [isAdmin, session.user.id]); // Dependências do hook
+  }, [isAdmin, session.user.id]);
+
+  // Saudação Dinâmica e Data
+  const getGreeting = () => {
+    const hora = new Date().getHours();
+    if (hora >= 5 && hora < 12) return "Bom dia";
+    if (hora >= 12 && hora < 18) return "Boa tarde";
+    return "Boa noite";
+  };
+
+  const getFormattedDate = () => {
+    const dataFormatada = new Date().toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    return dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+  };
 
   const emailUsuario = session.user.email;
   const avatarSigla = emailUsuario ? emailUsuario[0].toUpperCase() : "?";
   const nomePerfil = isAdmin ? "Administrador" : "Gestor Escolar";
+  const saudacao = getGreeting();
+  const dataHoje = getFormattedDate();
+
+  // Importa as "páginas" dinamicamente
+  const renderConteudoPagina = () => {
+    if (paginaAtiva === "dashboard") {
+      return (
+        <PainelPrincipal
+          session={session}
+          isAdmin={isAdmin}
+          minhaEscola={!isAdmin ? minhaEscola : null}
+        />
+      );
+    }
+
+    if (isAdmin && paginaAtiva === "escolas") {
+      return escolaSelecionada ? (
+        <DetalhesEscola
+          escola={escolaSelecionada}
+          onVoltar={handleVoltarParaLista}
+        />
+      ) : (
+        <GerenciarEscolas
+          onSelecionarEscola={(escola) => setEscolaSelecionada(escola)}
+        />
+      );
+    }
+
+    if (!isAdmin && paginaAtiva === "minhaEscola") {
+      if (loadingEscola) return <div className={styles.loadingScreen}><p>Carregando dados da escola...</p></div>;
+      
+      return minhaEscola ? (
+        <DetalhesEscola
+          escola={minhaEscola}
+          onVoltar={() => setPaginaAtiva("dashboard")}
+        />
+      ) : (
+        <div className={styles.errorScreen}>
+          <h1>🏫 Escola Não Encontrada</h1>
+          <p>
+            Nenhuma escola está associada à sua conta. Por favor,
+            contate o administrador do sistema para realizar a vinculação do gestor.
+          </p>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <div className={styles.layoutContainer}>
       {/* 1. Menu Lateral (Sidebar) */}
       <aside className={styles.sidebar}>
-        <div>
+        <div className={styles.sidebarTop}>
           <div className={styles.logo}>
             <img src={logo} alt="SIMREC Logo" className={styles.logoImg} />
-            <span style={{ fontSize: '0.9em' }}>SIMREC</span>
+            <span className={styles.logoText}>SIMREC</span>
           </div>
+          
           <nav className={styles.nav}>
-            {/* Link comum para o Dashboard */}
-            <a
-              href="#"
-              className={
-                paginaAtiva === "dashboard"
-                  ? styles.navItemAtivo
-                  : styles.navItem
-              }
+            <button
+              className={paginaAtiva === "dashboard" ? styles.navItemAtivo : styles.navItem}
               onClick={() => {
                 setPaginaAtiva("dashboard");
                 if (isAdmin) setEscolaSelecionada(null);
               }}
             >
-              <IconDashboard /> Dashboard
-            </a>
+              <IconDashboard /> 
+              <span>Dashboard</span>
+            </button>
 
-            {/* Link exclusivo do ADMIN */}
             {isAdmin && (
-              <a
-                href="#"
-                className={
-                  paginaAtiva === "escolas"
-                    ? styles.navItemAtivo
-                    : styles.navItem
-                }
+              <button
+                className={paginaAtiva === "escolas" ? styles.navItemAtivo : styles.navItem}
                 onClick={() => {
                   setPaginaAtiva("escolas");
-                  setEscolaSelecionada(null); // Limpa a seleção
+                  setEscolaSelecionada(null);
                 }}
               >
-                <IconEscolas /> Gerenciar Escolas
-              </a>
+                <IconEscolas /> 
+                <span>Gerenciar Escolas</span>
+              </button>
             )}
 
-            {/* Link exclusivo do GESTOR */}
             {!isAdmin && (
-              <a
-                href="#"
-                className={
-                  paginaAtiva === "minhaEscola"
-                    ? styles.navItemAtivo
-                    : styles.navItem
-                }
+              <button
+                className={paginaAtiva === "minhaEscola" ? styles.navItemAtivo : styles.navItem}
                 onClick={() => {
                   setPaginaAtiva("minhaEscola");
                 }}
               >
-                <IconEscolas /> Minha Escola
-              </a>
+                <IconEscolas /> 
+                <span>Minha Escola</span>
+              </button>
             )}
           </nav>
         </div>
 
-        {/* Perfil Sidebar Atualizado */}
+        {/* Perfil Sidebar Premium */}
         <div className={styles.perfilSidebar}>
-          <div className={styles.avatar}>{avatarSigla}</div>
+          <div className={styles.avatarWrapper}>
+            <div className={styles.avatar}>{avatarSigla}</div>
+            <span className={styles.statusIndicator} />
+          </div>
           <div className={styles.perfilInfo}>
             <span className={styles.perfilNome}>{nomePerfil}</span>
             <span className={styles.perfilEmail}>{emailUsuario}</span>
@@ -151,77 +215,32 @@ export default function Dashboard({ session }) {
 
       {/* 2. Conteúdo Principal */}
       <div className={styles.mainContent}>
-        {/* Header Atualizado */}
+        {/* Header Elegante e Leve */}
         <header className={styles.header}>
-          <div />
-          <div className={styles.menuUsuario}>
-            <div className={styles.avatar}>{avatarSigla}</div>
-            <span>{nomePerfil}</span>
+          <div className={styles.headerGreeting}>
+            <h2>{saudacao}, {nomePerfil}! 👋</h2>
+            <span className={styles.headerDate}>{dataHoje}</span>
+          </div>
+          
+          <div className={styles.headerActions}>
             <button
               onClick={handleLogout}
               className={styles.logoutButton}
               disabled={loading}
             >
-              Sair
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              {loading ? "Saindo..." : "Sair"}
             </button>
           </div>
         </header>
 
-        {/* 3. LÓGICA DE RENDERIZAÇÃO ATUALIZADA */}
+        {/* 3. Área de Trabalho */}
         <main className={styles.pagina}>
-          {/* Rota comum para todos - AGORA COM PROPS */}
-          {paginaAtiva === "dashboard" && (
-            <PainelPrincipal
-              session={session}
-              isAdmin={isAdmin}
-              minhaEscola={!isAdmin ? minhaEscola : null}
-            />
-          )}
-
-          {/* Rotas exclusivas do ADMIN */}
-          {isAdmin && paginaAtiva === "escolas" && (
-            <>
-              {/* Mostra DETALHES se uma escola estiver selecionada */}
-              {escolaSelecionada ? (
-                <DetalhesEscola
-                  escola={escolaSelecionada}
-                  onVoltar={handleVoltarParaLista}
-                />
-              ) : (
-                /* Mostra a LISTA se nenhuma escola estiver selecionada */
-                <GerenciarEscolas
-                  onSelecionarEscola={(escola) => setEscolaSelecionada(escola)}
-                />
-              )}
-            </>
-          )}
-
-          {/* Rota exclusiva do GESTOR */}
-          {!isAdmin && paginaAtiva === "minhaEscola" && (
-            <>
-              {loadingEscola && <p>Carregando dados da escola...</p>}
-
-              {/* Mostra os detalhes da escola do gestor */}
-              {minhaEscola && (
-                <DetalhesEscola
-                  escola={minhaEscola}
-                  // O botão "Voltar" levará o gestor de volta ao Dashboard
-                  onVoltar={() => setPaginaAtiva("dashboard")}
-                />
-              )}
-
-              {/* Caso de erro (usuário sem escola) */}
-              {!loadingEscola && !minhaEscola && (
-                <div>
-                  <h1>Erro</h1>
-                  <p>
-                    Nenhuma escola está associada à sua conta. Por favor,
-                    contate o administrador do sistema.
-                  </p>
-                </div>
-              )}
-            </>
-          )}
+          {renderConteudoPagina()}
         </main>
       </div>
     </div>

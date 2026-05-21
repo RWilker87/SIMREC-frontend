@@ -1,28 +1,42 @@
+/* ===================================================================
+   REDESIGN COMPLETO - SHELL DO DASHBOARD (SIMREC)
+   Interface em Vidro Translúcido (Glassmorphism), Glow & Navegação Fluida
+   =================================================================== */
+
 .layoutContainer {
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background-color: var(--bg-color);
+  background: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-secondary) 100%);
   font-family: var(--font-body);
   overflow-x: clip;
 }
 
-/* 1. Sidebar (Menu Lateral) */
+/* --- 1. SIDEBAR (MENU LATERAL) --- */
 .sidebar {
   width: 280px;
-  background-color: var(--surface-color);
-  border-right: none;
-  padding: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
-  box-shadow: var(--shadow-soft);
-  z-index: 10;
-  border-top-right-radius: var(--border-radius-lg);
-  border-bottom-right-radius: var(--border-radius-lg);
-  margin: var(--spacing-sm) 0 var(--spacing-sm) var(--spacing-sm);
-  height: calc(100vh - 16px);
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.04);
+  z-index: 100;
+  border-radius: var(--border-radius-lg);
+  margin: var(--spacing-md) 0 var(--spacing-md) var(--spacing-md);
+  height: calc(100vh - 32px);
+  position: sticky;
+  top: var(--spacing-md);
+}
+
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
 }
 
 .logo {
@@ -30,25 +44,35 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-title-friendly);
-  font-size: 1.2em;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin-bottom: 40px;
   text-align: center;
+  gap: 8px;
 }
 
 .logoImg {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  margin-bottom: var(--spacing-sm);
+  width: auto;
+  height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.05));
+  transition: transform 0.3s ease;
 }
 
+.logo:hover .logoImg {
+  transform: scale(1.08) rotate(3deg);
+}
+
+.logoText {
+  font-family: var(--font-title-friendly);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  letter-spacing: 0.5px;
+}
+
+/* Navigation Menu */
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .navItem,
@@ -57,183 +81,306 @@
   align-items: center;
   gap: 12px;
   padding: 14px 20px;
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 0.92rem;
   font-family: var(--font-body);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .navItem {
-  color: var(--text-color);
+  color: #475569;
   background-color: transparent;
 }
 
 .navItem:hover {
-  background-color: var(--bg-secondary);
-  color: var(--primary-color);
-  transform: translateX(4px);
+  background-color: rgba(245, 158, 11, 0.08);
+  color: var(--secondary-hover);
+  transform: translateX(6px);
+}
+
+.navItem svg {
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+
+.navItem:hover svg {
+  color: var(--secondary-hover);
 }
 
 .navItemAtivo {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   color: var(--white);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.25);
 }
 
+.navItemAtivo svg {
+  color: var(--white);
+}
+
+/* Perfil Sidebar Widget */
 .perfilSidebar {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-top: 2px solid var(--bg-secondary);
-  padding-top: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(15, 23, 42, 0.03);
+  padding: 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+}
+
+.avatarWrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background-color: var(--secondary-color);
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
   color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 1.15rem;
   font-family: var(--font-title-friendly);
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
   border: 2px solid var(--white);
-  box-shadow: var(--shadow-soft);
+}
+
+.statusIndicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--detail-color);
+  border: 2px solid var(--white);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 
 .perfilInfo {
   display: flex;
   flex-direction: column;
-  line-height: 1.3;
+  line-height: 1.35;
+  overflow: hidden;
+}
+
+.perfilNome {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-family: var(--font-title-friendly);
+}
+
+.perfilEmail {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.perfilNome {
-  font-weight: 700;
-  color: var(--primary-color);
-  font-family: var(--font-title-friendly);
-}
 
-.perfilEmail {
-  font-size: 0.85em;
-  color: var(--text-color);
-  opacity: 0.8;
-}
-
-/* 2. Conteúdo Principal */
+/* --- 2. CONTEÚDO PRINCIPAL --- */
 .mainContent {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   background-color: transparent;
-  /* Usa o fundo do container (amarelo) */
-  /* Adiciona textura orgânica de fundo se desejar, ou herda do global */
 }
 
-/* 2a. Header (Cabeçalho) */
+/* Header Ribbon (Barra Superior) */
 .header {
-  height: 80px;
-  background-color: var(--primary-color);
+  height: 88px;
   padding: 0 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow-soft);
-  margin: var(--spacing-sm) var(--spacing-sm) 0 var(--spacing-sm);
-  border-radius: var(--border-radius-lg);
-  color: var(--white);
-  min-width: 0;
+  border-bottom: 1.5px solid rgba(15, 23, 42, 0.05);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-bottom: var(--spacing-sm);
 }
 
-.menuUsuario {
+.headerGreeting {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.headerGreeting h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: var(--font-title-friendly);
+}
+
+.headerDate {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.headerActions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-weight: 600;
-  color: var(--white);
-  min-width: 0;
 }
 
 .logoutButton {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: var(--white);
-  border: 2px solid transparent;
-  padding: 8px 16px;
-  font-size: 0.9em;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+  padding: 10px 18px;
+  font-size: 0.88rem;
   font-weight: 700;
-  border-radius: var(--border-radius-md);
-  transition: all 0.2s;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .logoutButton:hover {
-  background-color: var(--white);
-  color: var(--primary-color);
+  background-color: rgba(239, 68, 68, 0.06);
+  color: var(--danger-color);
+  border-color: rgba(239, 68, 68, 0.2);
+  transform: translateY(-1px);
 }
 
-/* 2b. Área da Página */
+/* Área de Visualização da Página */
 .pagina {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-lg) 40px 40px 40px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
 }
 
+/* Telas Auxiliares (Loading & Erro) */
+.loadingScreen,
+.errorScreen {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.loadingScreen p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.errorScreen h1 {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  font-family: var(--font-title-friendly);
+  margin-top: 0;
+}
+
+.errorScreen p {
+  font-size: 1rem;
+  color: #64748b;
+  max-width: 500px;
+  margin: 16px auto 0 auto;
+  line-height: 1.6;
+}
+
+/* --- 3. RESPONSIVIDADE --- */
 @media (max-width: 1024px) {
   .layoutContainer {
     flex-direction: column;
   }
 
   .sidebar {
-    width: auto;
+    width: calc(100% - 32px);
     height: auto;
-    margin: var(--spacing-sm);
-    border-radius: var(--border-radius-lg);
+    margin: var(--spacing-md) var(--spacing-md) 0 var(--spacing-md);
+    position: static;
+  }
+  
+  .logo {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+  
+  .logoImg {
+    height: 42px;
+  }
+  
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .navItem,
+  .navItemAtivo {
+    width: auto;
+    flex: 1;
+    min-width: 150px;
+    justify-content: center;
+  }
+  
+  .perfilSidebar {
+    margin-top: 16px;
   }
 
   .header {
-    margin-top: 0;
+    margin: var(--spacing-md) var(--spacing-md) 0 var(--spacing-md);
+    border-radius: var(--border-radius-lg);
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    height: auto;
+    min-height: 80px;
+    padding: 16px 24px;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.02);
+  }
+  
+  .pagina {
+    padding: var(--spacing-md) var(--spacing-md) 32px var(--spacing-md);
   }
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    padding: var(--spacing-md);
-  }
-
+@media (max-width: 640px) {
   .logo {
-    margin-bottom: 24px;
+    justify-content: center;
   }
-
+  
   .navItem,
   .navItemAtivo {
-    padding: 12px 14px;
+    min-width: 100%;
   }
-
+  
   .header {
-    height: auto;
-    min-height: 72px;
-    padding: 12px 16px;
-    margin: 0 var(--spacing-sm);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    text-align: center;
   }
-
-  .menuUsuario {
-    gap: 10px;
-    margin-left: auto;
-    font-size: 0.9rem;
+  
+  .headerGreeting {
+    align-items: center;
   }
-
+  
   .logoutButton {
-    padding: 8px 12px;
-  }
-
-  .pagina {
-    padding: var(--spacing-md);
+    width: 100%;
   }
 }
