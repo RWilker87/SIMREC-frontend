@@ -7,6 +7,7 @@ import DetalhesEscola from "./DetalhesEscola.jsx";
 import logo from "../assets/logo.png";
 import GerenciarEscolas from "./GerenciarEscolas.jsx";
 import PainelPrincipal from "./PainelPrincipal.jsx";
+import MetasEscolas from "./MetasEscolas.jsx";
 
 // Ícones SVG minimalistas e elegantes
 const IconDashboard = () => (
@@ -22,6 +23,14 @@ const IconEscolas = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
+
+const IconMetas = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
   </svg>
 );
 
@@ -116,6 +125,10 @@ export default function Dashboard({ session }) {
       );
     }
 
+    if (isAdmin && paginaAtiva === "metas") {
+      return <MetasEscolas />;
+    }
+
     if (isAdmin && paginaAtiva === "escolas") {
       return escolaSelecionada ? (
         <DetalhesEscola
@@ -181,8 +194,18 @@ export default function Dashboard({ session }) {
                   setEscolaSelecionada(null);
                 }}
               >
-                <IconEscolas /> 
+                <IconEscolas />
                 <span>Gerenciar Escolas</span>
+              </button>
+            )}
+
+            {isAdmin && (
+              <button
+                className={paginaAtiva === "metas" ? styles.navItemAtivo : styles.navItem}
+                onClick={() => setPaginaAtiva("metas")}
+              >
+                <IconMetas />
+                <span>Metas das Escolas</span>
               </button>
             )}
 
