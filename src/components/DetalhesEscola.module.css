@@ -1450,7 +1450,7 @@
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     padding: 10px 12px !important;
-    text-align: left !important;
+    text-align: left;
   }
 
   .printTable td {

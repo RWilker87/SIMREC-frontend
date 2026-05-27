@@ -558,24 +558,27 @@ export default function DetalhesEscola({ escola, onVoltar }) {
   // Metas do grupo selecionado por ano
   const metasDoGrupo = useMemo(() => {
     if (!grupoSelecionado || !selectedTipo || metas.length === 0) return [];
+    if (selectedTipo !== "IDEB" && selectedTipo !== "IDEPE" && selectedTipo !== "Fluencia") return [];
+
     const serieStr = String(grupoSelecionado.serie || "");
     let metaSerie = "";
-    if (serieStr.includes("2")) metaSerie = "2";
-    else if (serieStr.includes("5")) metaSerie = "5";
-    else if (serieStr.includes("9")) metaSerie = "9";
+    if (selectedTipo === "Fluencia") {
+      metaSerie = "";
+    } else if (serieStr.includes("2")) {
+      metaSerie = "2";
+    } else if (serieStr.includes("5")) {
+      metaSerie = "5";
+    } else if (serieStr.includes("9")) {
+      metaSerie = "9";
+    }
     
     let metaAvaliacao = "";
     if (selectedTipo === "Fluencia") {
       metaAvaliacao = "Fluencia";
-      metaSerie = ""; // Fluency has no series (serie = '') in the metas DB table
     } else if (selectedTipo === "IDEB") {
       metaAvaliacao = "IDEB";
     } else if (selectedTipo === "IDEPE") {
       metaAvaliacao = "IDEP";
-    } else if (selectedTipo === "SAEPE") {
-      metaAvaliacao = "SAEPE";
-    } else if (selectedTipo === "SAEB") {
-      metaAvaliacao = "SAEB";
     }
     
     if (!metaAvaliacao) return [];
@@ -583,18 +586,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
     return metas.filter((m) => {
       const isAval = m.avaliacao === metaAvaliacao;
       const isSerie = m.serie === metaSerie;
-      if (!isAval || !isSerie) return false;
-      
-      if (metaAvaliacao === "SAEPE" || metaAvaliacao === "SAEB") {
-        const mDisc = normStr(m.disciplina || "");
-        const gDisc = normStr(grupoSelecionado.disciplina || "");
-        const isLp = mDisc.includes("port") || mDisc.includes("lp");
-        const isMat = mDisc.includes("mat");
-        if (isLp) return gDisc.includes("port") || gDisc.includes("lp");
-        if (isMat) return gDisc.includes("mat");
-        return mDisc === gDisc;
-      }
-      return true;
+      return isAval && isSerie;
     });
   }, [grupoSelecionado, selectedTipo, metas]);
 
@@ -637,27 +629,15 @@ export default function DetalhesEscola({ escola, onVoltar }) {
       const metaAvaliacao = latestRes.avaliacao.toLowerCase().includes("fluenc") ? "Fluencia"
         : latestRes.avaliacao.toLowerCase().includes("ideb") ? "IDEB"
         : latestRes.avaliacao.toLowerCase().includes("idep") ? "IDEP"
-        : latestRes.avaliacao.toLowerCase().includes("saepe") ? "SAEPE"
-        : latestRes.avaliacao.toLowerCase().includes("saeb") ? "SAEB"
         : "";
 
-      const matchMeta = metas.find((m) => {
+      const hasMeta = metaAvaliacao === "Fluencia" || metaAvaliacao === "IDEB" || metaAvaliacao === "IDEP";
+      const matchMeta = hasMeta ? metas.find((m) => {
         const isAval = m.avaliacao === metaAvaliacao;
         const isSerie = m.serie === metaSerie;
         const isAno = Number(m.ano) === Number(latestRes.ano);
-        if (!isAval || !isSerie || !isAno) return false;
-        
-        if (metaAvaliacao === "SAEPE" || metaAvaliacao === "SAEB") {
-          const mDisc = normStr(m.disciplina || "");
-          const gDisc = normStr(latestRes.disciplina || "");
-          const isLp = mDisc.includes("port") || mDisc.includes("lp");
-          const isMat = mDisc.includes("mat");
-          if (isLp) return gDisc.includes("port") || gDisc.includes("lp");
-          if (isMat) return gDisc.includes("mat");
-          return mDisc === gDisc;
-        }
-        return true;
-      });
+        return isAval && isSerie && isAno;
+      }) : null;
       
       summary.push({
         avaliacao: latestRes.avaliacao,
@@ -676,28 +656,29 @@ export default function DetalhesEscola({ escola, onVoltar }) {
       return sA.localeCompare(sB) || avA.localeCompare(avB) || dA.localeCompare(dB);
     });
   }, [grupos, metas, resultados.length]);
-
+ 
   // Dados para impressão: agrupados por tipo de avaliação, com anos como colunas
   const printByType = useMemo(() => {
     const map = {};
     TIPOS_AVALIACAO.forEach((t) => {
       map[t.key] = { label: t.label, cor: t.cor, grupos: [], anosSet: new Set() };
     });
-
+ 
     grupos.forEach((g) => {
       const tipo = TIPOS_AVALIACAO.find((t) => t.match(g.avaliacao, g.disciplina));
       if (!tipo) return;
-
+ 
       g.dados.forEach((d) => map[tipo.key].anosSet.add(Number(d.ano)));
-
+ 
       const serieStr = String(g.serie || "").toLowerCase();
       const metaSerie = serieStr.includes("5") ? "5" : serieStr.includes("9") ? "9" : "";
       const metaAv = tipo.key === "IDEPE" ? "IDEP" : tipo.key;
-
-      const metaRec = [...metas]
+      const hasMeta = tipo.key === "IDEB" || tipo.key === "IDEPE" || tipo.key === "Fluencia";
+ 
+      const metaRec = hasMeta ? [...metas]
         .filter((m) => m.avaliacao === metaAv && m.serie === metaSerie)
-        .sort((a, b) => b.ano - a.ano)[0];
-
+        .sort((a, b) => b.ano - a.ano)[0] : null;
+ 
       map[tipo.key].grupos.push({
         chave: g.chave,
         serie: g.serie,
@@ -708,7 +689,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
         avaliacao: g.avaliacao,
       });
     });
-
+ 
     return Object.values(map)
       .filter((t) => t.grupos.length > 0)
       .map((t) => ({ ...t, anos: [...t.anosSet].sort((a, b) => a - b) }));
@@ -1025,7 +1006,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
                     <option value="SAEPE">SAEPE</option>
                     <option value="SAEB">SAEB</option>
                     <option value="IDEB">IDEB</option>
-                    <option value="IDEP">IDEP (IDEPE)</option>
+                    <option value="IDEP">IDEPE</option>
                     <option value="Fluencia">Fluência</option>
                   </select>
                 </div>
@@ -1124,7 +1105,7 @@ export default function DetalhesEscola({ escola, onVoltar }) {
                     <option value="SAEPE">SAEPE</option>
                     <option value="SAEB">SAEB</option>
                     <option value="IDEB">IDEB</option>
-                    <option value="IDEP">IDEP (IDEPE)</option>
+                    <option value="IDEP">IDEPE</option>
                     <option value="Fluencia">Fluência</option>
                   </select>
                 </div>

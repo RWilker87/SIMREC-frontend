@@ -117,10 +117,7 @@ export default function MetasEscolas() {
   const [escolaModal, setEscolaModal] = useState(null);
   const [formConfig, setFormConfig] = useState({ ...DEFAULT_CONFIG });
   const [formMetas, setFormMetas] = useState({
-    IDEB_5: "", IDEP_5: "", IDEB_9: "", IDEP_9: "", Fluencia: "",
-    SAEPE_5_LP: "", SAEPE_5_MAT: "", SAEB_5_LP: "", SAEB_5_MAT: "",
-    SAEPE_9_LP: "", SAEPE_9_MAT: "", SAEB_9_LP: "", SAEB_9_MAT: "",
-    SAEPE_2_LP: "", SAEPE_2_MAT: ""
+    IDEB_5: "", IDEP_5: "", IDEB_9: "", IDEP_9: "", Fluencia: ""
   });
 
   const anosDisponiveis = Array.from({ length: 6 }, (_, i) => anoAtual + 1 - i);
@@ -187,17 +184,7 @@ export default function MetasEscolas() {
       IDEP_5: em.IDEP_5 !== undefined ? String(em.IDEP_5) : "",
       IDEB_9: em.IDEB_9 !== undefined ? String(em.IDEB_9) : "",
       IDEP_9: em.IDEP_9 !== undefined ? String(em.IDEP_9) : "",
-      Fluencia: em.Fluencia !== undefined ? String(em.Fluencia) : "",
-      SAEPE_5_LP: em.SAEPE_5_LP !== undefined ? String(em.SAEPE_5_LP) : "",
-      SAEPE_5_MAT: em.SAEPE_5_MAT !== undefined ? String(em.SAEPE_5_MAT) : "",
-      SAEB_5_LP: em.SAEB_5_LP !== undefined ? String(em.SAEB_5_LP) : "",
-      SAEB_5_MAT: em.SAEB_5_MAT !== undefined ? String(em.SAEB_5_MAT) : "",
-      SAEPE_9_LP: em.SAEPE_9_LP !== undefined ? String(em.SAEPE_9_LP) : "",
-      SAEPE_9_MAT: em.SAEPE_9_MAT !== undefined ? String(em.SAEPE_9_MAT) : "",
-      SAEB_9_LP: em.SAEB_9_LP !== undefined ? String(em.SAEB_9_LP) : "",
-      SAEB_9_MAT: em.SAEB_9_MAT !== undefined ? String(em.SAEB_9_MAT) : "",
-      SAEPE_2_LP: em.SAEPE_2_LP !== undefined ? String(em.SAEPE_2_LP) : "",
-      SAEPE_2_MAT: em.SAEPE_2_MAT !== undefined ? String(em.SAEPE_2_MAT) : ""
+      Fluencia: em.Fluencia !== undefined ? String(em.Fluencia) : ""
     });
     setModalOpen(true);
   };
@@ -217,26 +204,11 @@ export default function MetasEscolas() {
       // 2. Montar upserts de metas apenas para métricas ativas com valor preenchido
       const upserts = [];
 
-      if (formConfig.tem_2ano) {
-        if (formMetas.SAEPE_2_LP !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEPE", serie: "2", disciplina: "Língua Portuguesa", meta: parseFloat(formMetas.SAEPE_2_LP), ano: anoSelecionado });
-        if (formMetas.SAEPE_2_MAT !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEPE", serie: "2", disciplina: "Matemática", meta: parseFloat(formMetas.SAEPE_2_MAT), ano: anoSelecionado });
-      }
-
       if (formConfig.tem_5ano) {
         if (formMetas.IDEB_5 !== "")
           upserts.push({ escola_id: escolaModal.id, avaliacao: "IDEB", serie: "5", disciplina: "", meta: parseFloat(formMetas.IDEB_5), ano: anoSelecionado });
         if (formMetas.IDEP_5 !== "")
           upserts.push({ escola_id: escolaModal.id, avaliacao: "IDEP", serie: "5", disciplina: "", meta: parseFloat(formMetas.IDEP_5), ano: anoSelecionado });
-        if (formMetas.SAEPE_5_LP !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEPE", serie: "5", disciplina: "Língua Portuguesa", meta: parseFloat(formMetas.SAEPE_5_LP), ano: anoSelecionado });
-        if (formMetas.SAEPE_5_MAT !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEPE", serie: "5", disciplina: "Matemática", meta: parseFloat(formMetas.SAEPE_5_MAT), ano: anoSelecionado });
-        if (formMetas.SAEB_5_LP !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEB", serie: "5", disciplina: "Língua Portuguesa", meta: parseFloat(formMetas.SAEB_5_LP), ano: anoSelecionado });
-        if (formMetas.SAEB_5_MAT !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEB", serie: "5", disciplina: "Matemática", meta: parseFloat(formMetas.SAEB_5_MAT), ano: anoSelecionado });
       }
 
       if (formConfig.tem_9ano) {
@@ -244,14 +216,6 @@ export default function MetasEscolas() {
           upserts.push({ escola_id: escolaModal.id, avaliacao: "IDEB", serie: "9", disciplina: "", meta: parseFloat(formMetas.IDEB_9), ano: anoSelecionado });
         if (formMetas.IDEP_9 !== "")
           upserts.push({ escola_id: escolaModal.id, avaliacao: "IDEP", serie: "9", disciplina: "", meta: parseFloat(formMetas.IDEP_9), ano: anoSelecionado });
-        if (formMetas.SAEPE_9_LP !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEPE", serie: "9", disciplina: "Língua Portuguesa", meta: parseFloat(formMetas.SAEPE_9_LP), ano: anoSelecionado });
-        if (formMetas.SAEPE_9_MAT !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEPE", serie: "9", disciplina: "Matemática", meta: parseFloat(formMetas.SAEPE_9_MAT), ano: anoSelecionado });
-        if (formMetas.SAEB_9_LP !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEB", serie: "9", disciplina: "Língua Portuguesa", meta: parseFloat(formMetas.SAEB_9_LP), ano: anoSelecionado });
-        if (formMetas.SAEB_9_MAT !== "")
-          upserts.push({ escola_id: escolaModal.id, avaliacao: "SAEB", serie: "9", disciplina: "Matemática", meta: parseFloat(formMetas.SAEB_9_MAT), ano: anoSelecionado });
       }
 
       if (formConfig.tem_fluencia && formMetas.Fluencia !== "") {
@@ -294,36 +258,26 @@ export default function MetasEscolas() {
     }
   };
 
-  const calcProgresso = (escolaId) => {
+   const calcProgresso = (escolaId) => {
     const cfg = getConfig(escolaId);
     const em = metas[escolaId] || {};
     let total = 0, definidas = 0;
 
     if (cfg.tem_2ano) {
-      total += 3;
-      if (em.SAEPE_2_LP !== undefined) definidas++;
-      if (em.SAEPE_2_MAT !== undefined) definidas++;
+      total += 1;
       if (em.Fluencia !== undefined) definidas++;
     }
 
     if (cfg.tem_5ano) {
-      total += 6;
+      total += 2;
       if (em.IDEB_5 !== undefined) definidas++;
       if (em.IDEP_5 !== undefined) definidas++;
-      if (em.SAEPE_5_LP !== undefined) definidas++;
-      if (em.SAEPE_5_MAT !== undefined) definidas++;
-      if (em.SAEB_5_LP !== undefined) definidas++;
-      if (em.SAEB_5_MAT !== undefined) definidas++;
     }
 
     if (cfg.tem_9ano) {
-      total += 6;
+      total += 2;
       if (em.IDEB_9 !== undefined) definidas++;
       if (em.IDEP_9 !== undefined) definidas++;
-      if (em.SAEPE_9_LP !== undefined) definidas++;
-      if (em.SAEPE_9_MAT !== undefined) definidas++;
-      if (em.SAEB_9_LP !== undefined) definidas++;
-      if (em.SAEB_9_MAT !== undefined) definidas++;
     }
 
     return { total, definidas };
@@ -377,20 +331,12 @@ export default function MetasEscolas() {
           <span className={styles.legendDesc}>5° e 9° ano · Escala 0–10</span>
         </div>
         <div className={`${styles.legendCard} ${styles.legend_ambar}`}>
-          <span className={styles.legendLabel}>IDEP</span>
+          <span className={styles.legendLabel}>IDEPE</span>
           <span className={styles.legendDesc}>5° e 9° ano · Escala 0–10</span>
         </div>
         <div className={`${styles.legendCard} ${styles.legend_verde}`}>
           <span className={styles.legendLabel}>Fluência</span>
           <span className={styles.legendDesc}>Escola inteira · Escala 0–10</span>
-        </div>
-        <div className={`${styles.legendCard} ${styles.legend_azul}`}>
-          <span className={styles.legendLabel}>SAEPE</span>
-          <span className={styles.legendDesc}>2º (0–1000) · 5º/9º (0–500)</span>
-        </div>
-        <div className={`${styles.legendCard} ${styles.legend_azul}`}>
-          <span className={styles.legendLabel}>SAEB</span>
-          <span className={styles.legendDesc}>5° e 9° ano · Escala 0–500</span>
         </div>
         <div className={styles.legendNote}>
           <span>Métricas desativadas aparecem acinzentadas por escola</span>
@@ -439,8 +385,6 @@ export default function MetasEscolas() {
                   <div className={`${styles.gradeGroup} ${!cfg.tem_2ano ? styles.gradeGroupDesativado : ""}`}>
                     <span className={styles.gradeGroupLabel}>2° Ano</span>
                     <div className={styles.gradeBoxes}>
-                      <MetaBox label="SAEPE LP" value={em.SAEPE_2_LP} cor="azul" ativa={cfg.tem_2ano} max={1000} unit="pts" />
-                      <MetaBox label="SAEPE MT" value={em.SAEPE_2_MAT} cor="azul" ativa={cfg.tem_2ano} max={1000} unit="pts" />
                       <MetaBox label="Fluência" value={em.Fluencia} cor="verde" ativa={cfg.tem_2ano} />
                     </div>
                   </div>
@@ -452,11 +396,7 @@ export default function MetasEscolas() {
                     <span className={styles.gradeGroupLabel}>5° Ano</span>
                     <div className={styles.gradeBoxes}>
                       <MetaBox label="IDEB" value={em.IDEB_5} cor="vermelho" ativa={cfg.tem_5ano} />
-                      <MetaBox label="IDEP" value={em.IDEP_5} cor="ambar" ativa={cfg.tem_5ano} />
-                      <MetaBox label="SAEPE LP" value={em.SAEPE_5_LP} cor="azul" ativa={cfg.tem_5ano} max={500} unit="pts" />
-                      <MetaBox label="SAEPE MT" value={em.SAEPE_5_MAT} cor="azul" ativa={cfg.tem_5ano} max={500} unit="pts" />
-                      <MetaBox label="SAEB LP" value={em.SAEB_5_LP} cor="azul" ativa={cfg.tem_5ano} max={500} unit="pts" />
-                      <MetaBox label="SAEB MT" value={em.SAEB_5_MAT} cor="azul" ativa={cfg.tem_5ano} max={500} unit="pts" />
+                      <MetaBox label="IDEPE" value={em.IDEP_5} cor="ambar" ativa={cfg.tem_5ano} />
                     </div>
                   </div>
 
@@ -467,11 +407,7 @@ export default function MetasEscolas() {
                     <span className={styles.gradeGroupLabel}>9° Ano</span>
                     <div className={styles.gradeBoxes}>
                       <MetaBox label="IDEB" value={em.IDEB_9} cor="vermelho" ativa={cfg.tem_9ano} />
-                      <MetaBox label="IDEP" value={em.IDEP_9} cor="ambar" ativa={cfg.tem_9ano} />
-                      <MetaBox label="SAEPE LP" value={em.SAEPE_9_LP} cor="azul" ativa={cfg.tem_9ano} max={500} unit="pts" />
-                      <MetaBox label="SAEPE MT" value={em.SAEPE_9_MAT} cor="azul" ativa={cfg.tem_9ano} max={500} unit="pts" />
-                      <MetaBox label="SAEB LP" value={em.SAEB_9_LP} cor="azul" ativa={cfg.tem_9ano} max={500} unit="pts" />
-                      <MetaBox label="SAEB MT" value={em.SAEB_9_MAT} cor="azul" ativa={cfg.tem_9ano} max={500} unit="pts" />
+                      <MetaBox label="IDEPE" value={em.IDEP_9} cor="ambar" ativa={cfg.tem_9ano} />
                     </div>
                   </div>
 
@@ -519,19 +455,19 @@ export default function MetasEscolas() {
                   <div className={styles.toggleList}>
                     <Toggle
                       label="2° Ano"
-                      desc="SAEPE e Fluência do 2° ano"
+                      desc="Fluência do 2° ano"
                       checked={formConfig.tem_2ano}
                       onChange={(v) => setFormConfig((p) => ({ ...p, tem_2ano: v, tem_fluencia: v }))}
                     />
                     <Toggle
                       label="5° Ano"
-                      desc="IDEB, IDEP, SAEPE e SAEB do 5° ano"
+                      desc="IDEB e IDEPE do 5° ano"
                       checked={formConfig.tem_5ano}
                       onChange={(v) => setFormConfig((p) => ({ ...p, tem_5ano: v }))}
                     />
                     <Toggle
                       label="9° Ano"
-                      desc="IDEB, IDEP, SAEPE e SAEB do 9° ano"
+                      desc="IDEB e IDEPE do 9° ano"
                       checked={formConfig.tem_9ano}
                       onChange={(v) => setFormConfig((p) => ({ ...p, tem_9ano: v }))}
                     />
@@ -550,29 +486,9 @@ export default function MetasEscolas() {
                     {formConfig.tem_2ano && (
                       <div className={styles.gradeInputGroup}>
                         <div className={styles.gradeInputHeader}>
-                          <span className={`${styles.gradeInputBadge} ${styles.gradeInputBadgeAzul}`}>2° Ano</span>
+                          <span className={`${styles.gradeInputBadge} ${styles.gradeInputBadgeVerde}`}>2° Ano</span>
                         </div>
                         <div className={styles.inputRow}>
-                          <MetaInput
-                            id="saepe_2_lp"
-                            label="SAEPE LP"
-                            cor="azul"
-                            max={1000}
-                            step={1}
-                            value={formMetas.SAEPE_2_LP}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEPE_2_LP: v }))}
-                          />
-                          <MetaInput
-                            id="saepe_2_mat"
-                            label="SAEPE MT"
-                            cor="azul"
-                            max={1000}
-                            step={1}
-                            value={formMetas.SAEPE_2_MAT}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEPE_2_MAT: v }))}
-                          />
-                        </div>
-                        <div className={styles.inputRow} style={{ borderTop: "1.5px solid #f1f5f9" }}>
                           <MetaInput
                             id="fluencia"
                             label="Meta de Fluência"
@@ -581,6 +497,7 @@ export default function MetasEscolas() {
                             step={0.1}
                             value={formMetas.Fluencia}
                             onChange={(v) => setFormMetas((p) => ({ ...p, Fluencia: v }))}
+                            fullWidth
                           />
                         </div>
                       </div>
@@ -604,52 +521,12 @@ export default function MetasEscolas() {
                           />
                           <MetaInput
                             id="idep5"
-                            label="IDEP"
+                            label="IDEPE"
                             cor="ambar"
                             max={10}
                             step={0.1}
                             value={formMetas.IDEP_5}
                             onChange={(v) => setFormMetas((p) => ({ ...p, IDEP_5: v }))}
-                          />
-                        </div>
-                        <div className={styles.inputRow}>
-                          <MetaInput
-                            id="saepe_5_lp"
-                            label="SAEPE LP"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEPE_5_LP}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEPE_5_LP: v }))}
-                          />
-                          <MetaInput
-                            id="saepe_5_mat"
-                            label="SAEPE MT"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEPE_5_MAT}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEPE_5_MAT: v }))}
-                          />
-                        </div>
-                        <div className={styles.inputRow}>
-                          <MetaInput
-                            id="saeb_5_lp"
-                            label="SAEB LP"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEB_5_LP}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEB_5_LP: v }))}
-                          />
-                          <MetaInput
-                            id="saeb_5_mat"
-                            label="SAEB MT"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEB_5_MAT}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEB_5_MAT: v }))}
                           />
                         </div>
                       </div>
@@ -673,52 +550,12 @@ export default function MetasEscolas() {
                           />
                           <MetaInput
                             id="idep9"
-                            label="IDEP"
+                            label="IDEPE"
                             cor="ambar"
                             max={10}
                             step={0.1}
                             value={formMetas.IDEP_9}
                             onChange={(v) => setFormMetas((p) => ({ ...p, IDEP_9: v }))}
-                          />
-                        </div>
-                        <div className={styles.inputRow}>
-                          <MetaInput
-                            id="saepe_9_lp"
-                            label="SAEPE LP"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEPE_9_LP}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEPE_9_LP: v }))}
-                          />
-                          <MetaInput
-                            id="saepe_9_mat"
-                            label="SAEPE MT"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEPE_9_MAT}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEPE_9_MAT: v }))}
-                          />
-                        </div>
-                        <div className={styles.inputRow}>
-                          <MetaInput
-                            id="saeb_9_lp"
-                            label="SAEB LP"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEB_9_LP}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEB_9_LP: v }))}
-                          />
-                          <MetaInput
-                            id="saeb_9_mat"
-                            label="SAEB MT"
-                            cor="azul"
-                            max={500}
-                            step={1}
-                            value={formMetas.SAEB_9_MAT}
-                            onChange={(v) => setFormMetas((p) => ({ ...p, SAEB_9_MAT: v }))}
                           />
                         </div>
                       </div>
