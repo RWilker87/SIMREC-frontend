@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import styles from "./PainelPrincipal.module.css";
+import DetalheMunicipio from "./DetalheMunicipio.jsx";
 
 // Componentes de Ícones SVG unificados
 const IconSchool = ({ size = 22 }) => (
@@ -61,8 +62,19 @@ const IconTrendingDown = ({ size = 22 }) => (
   </svg>
 );
 
+const IconMunicipality = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <rect x="9" y="14" width="6" height="7" rx="1" />
+    <line x1="3" y1="22" x2="21" y2="22" />
+  </svg>
+);
+
 export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
   const [loading, setLoading] = useState(true);
+
+  // Aba do painel admin
+  const [abaAdmin, setAbaAdmin] = useState("visao");
 
   // Estados Admin
   const [totalEscolas, setTotalEscolas] = useState(0);
@@ -234,120 +246,141 @@ export default function PainelPrincipal({ session, isAdmin, minhaEscola }) {
   if (isAdmin) {
     return (
       <div className={styles.container}>
-        <div className={styles.titleArea}>
-          <h1>Visão Geral do Município</h1>
-          <span className={styles.subtext}>Acompanhamento em tempo real dos índices de aprendizagem escolar</span>
-        </div>
-
-        {/* KPI Cards Admin */}
-        <div className={styles.kpiContainer}>
-          <div className={`${styles.kpiCard} ${styles.kpiPrimary}`}>
-            <div className={styles.kpiHeaderRow}>
-              <div className={styles.kpiIconBubble}>
-                <IconSchool size={22} />
-              </div>
-              <span className={styles.kpiBadge}>SIMREC</span>
-            </div>
-            <span className={styles.kpiValue}>{loading ? "..." : totalEscolas}</span>
-            <span className={styles.kpiLabel}>Total de Escolas</span>
+        {/* CABEÇALHO COM ABAS */}
+        <div className={styles.adminHeader}>
+          <div className={styles.titleArea}>
+            <h1>{abaAdmin === "visao" ? "Visão Geral do Município" : "Notas do Município"}</h1>
+            <span className={styles.subtext}>
+              {abaAdmin === "visao"
+                ? "Acompanhamento em tempo real dos índices de aprendizagem escolar"
+                : "Registre os índices educacionais do município"}
+            </span>
           </div>
-
-          <div className={`${styles.kpiCard} ${styles.kpiSecondary}`}>
-            <div className={styles.kpiHeaderRow}>
-              <div className={styles.kpiIconBubble}>
-                <IconBookOpen size={22} />
-              </div>
-              <span className={styles.kpiBadge}>Avaliações</span>
-            </div>
-            <span className={styles.kpiValue}>{loading ? "..." : totalResultados}</span>
-            <span className={styles.kpiLabel}>Resultados Lançados</span>
-          </div>
-
-          <div className={`${styles.kpiCard} ${styles.kpiSuccess}`}>
-            <div className={styles.kpiHeaderRow}>
-              <div className={styles.kpiIconBubble}>
-                <IconCheckCircle size={22} />
-              </div>
-              <span className={styles.kpiBadge}>Frequência</span>
-            </div>
-            <span className={styles.kpiValue}>{loading ? "..." : escolasAtivas}</span>
-            <span className={styles.kpiLabel}>Escolas Ativas</span>
-          </div>
-
-          <div className={`${styles.kpiCard} ${styles.kpiInfo}`}>
-            <div className={styles.kpiHeaderRow}>
-              <div className={styles.kpiIconBubble}>
-                <IconClipboard size={22} />
-              </div>
-              <span className={styles.kpiBadge}>Formatos</span>
-            </div>
-            <span className={styles.kpiValue}>{loading ? "..." : totalAvaliacoes}</span>
-            <span className={styles.kpiLabel}>Tipos de Avaliação</span>
+          <div className={styles.adminTabs}>
+            <button
+              className={abaAdmin === "visao" ? styles.adminTabAtivo : styles.adminTab}
+              onClick={() => setAbaAdmin("visao")}
+            >
+              <IconActivity size={17} />
+              Visão Geral
+            </button>
+            <button
+              className={abaAdmin === "notas" ? styles.adminTabAtivo : styles.adminTab}
+              onClick={() => setAbaAdmin("notas")}
+            >
+              <IconMunicipality size={17} />
+              Notas do Município
+            </button>
           </div>
         </div>
 
-        {/* Conteúdo Admin */}
-        <div className={styles.contentRow}>
-          {/* Resultados por Disciplina */}
-          <div className={styles.contentCard}>
-            <div className={styles.cardHeader}>
-              <IconBookOpen size={18} />
-              <h3>Resultados por Disciplina</h3>
-            </div>
-            {loading ? (
-              <div className={styles.cardLoading}><p>Carregando análises...</p></div>
-            ) : resultadosPorDisciplina.length === 0 ? (
-              <p className={styles.emptyState}>Nenhum dado disponível</p>
-            ) : (
-              <ul className={styles.disciplinasList}>
-                {resultadosPorDisciplina.map((disciplina) => (
-                  <li key={disciplina.nome} className={styles.disciplinaItem}>
-                    <div className={styles.disciplinaInfo}>
-                      <strong>{disciplina.nome}</strong>
-                      <span className={styles.disciplinaMeta}>
-                        {disciplina.count} lançamento{disciplina.count !== 1 ? 's' : ''}
-                      </span>
-                    </div>
-                    <div className={styles.disciplinaBarra}>
-                      <div
-                        className={styles.disciplinaFill}
-                        style={{ width: `${(disciplina.count / totalResultados) * 100}%` }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+        {/* ============ ABA: VISÃO GERAL ============ */}
+        {abaAdmin === "visao" && (
+          <>
+            {/* KPI Cards Admin */}
+            <div className={styles.kpiContainer}>
+              <div className={`${styles.kpiCard} ${styles.kpiPrimary}`}>
+                <div className={styles.kpiHeaderRow}>
+                  <div className={styles.kpiIconBubble}><IconSchool size={22} /></div>
+                  <span className={styles.kpiBadge}>SIMREC</span>
+                </div>
+                <span className={styles.kpiValue}>{loading ? "..." : totalEscolas}</span>
+                <span className={styles.kpiLabel}>Total de Escolas</span>
+              </div>
 
-          {/* Atividades Recentes */}
-          <div className={styles.contentCard}>
-            <div className={styles.cardHeader}>
-              <IconActivity size={18} />
-              <h3>Atividades Recentes</h3>
+              <div className={`${styles.kpiCard} ${styles.kpiSecondary}`}>
+                <div className={styles.kpiHeaderRow}>
+                  <div className={styles.kpiIconBubble}><IconBookOpen size={22} /></div>
+                  <span className={styles.kpiBadge}>Avaliações</span>
+                </div>
+                <span className={styles.kpiValue}>{loading ? "..." : totalResultados}</span>
+                <span className={styles.kpiLabel}>Resultados Lançados</span>
+              </div>
+
+              <div className={`${styles.kpiCard} ${styles.kpiSuccess}`}>
+                <div className={styles.kpiHeaderRow}>
+                  <div className={styles.kpiIconBubble}><IconCheckCircle size={22} /></div>
+                  <span className={styles.kpiBadge}>Frequência</span>
+                </div>
+                <span className={styles.kpiValue}>{loading ? "..." : escolasAtivas}</span>
+                <span className={styles.kpiLabel}>Escolas Ativas</span>
+              </div>
+
+              <div className={`${styles.kpiCard} ${styles.kpiInfo}`}>
+                <div className={styles.kpiHeaderRow}>
+                  <div className={styles.kpiIconBubble}><IconClipboard size={22} /></div>
+                  <span className={styles.kpiBadge}>Formatos</span>
+                </div>
+                <span className={styles.kpiValue}>{loading ? "..." : totalAvaliacoes}</span>
+                <span className={styles.kpiLabel}>Tipos de Avaliação</span>
+              </div>
             </div>
-            {loading ? (
-              <div className={styles.cardLoading}><p>Carregando atividades...</p></div>
-            ) : (
-              <ul className={styles.listaAtividades}>
-                {atividadesRecentes.length === 0 ? (
-                  <li className={styles.emptyState}>Nenhuma atividade registrada hoje.</li>
+
+            {/* Conteúdo Admin */}
+            <div className={styles.contentRow}>
+              <div className={styles.contentCard}>
+                <div className={styles.cardHeader}>
+                  <IconBookOpen size={18} />
+                  <h3>Resultados por Disciplina</h3>
+                </div>
+                {loading ? (
+                  <div className={styles.cardLoading}><p>Carregando análises...</p></div>
+                ) : resultadosPorDisciplina.length === 0 ? (
+                  <p className={styles.emptyState}>Nenhum dado disponível</p>
                 ) : (
-                  atividadesRecentes.map((atividade, index) => (
-                    <li key={index} className={styles.atividadeItem}>
-                      <div className={styles.atividadeMarker} />
-                      <div className={styles.atividadeContent}>
-                        <strong>{atividade.titulo}</strong>
-                        <span className={styles.subtitulo}>{atividade.subtitulo}</span>
-                        <span className={styles.tempo}>{formatTempo(atividade.data)}</span>
-                      </div>
-                    </li>
-                  ))
+                  <ul className={styles.disciplinasList}>
+                    {resultadosPorDisciplina.map((disciplina) => (
+                      <li key={disciplina.nome} className={styles.disciplinaItem}>
+                        <div className={styles.disciplinaInfo}>
+                          <strong>{disciplina.nome}</strong>
+                          <span className={styles.disciplinaMeta}>
+                            {disciplina.count} lançamento{disciplina.count !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                        <div className={styles.disciplinaBarra}>
+                          <div
+                            className={styles.disciplinaFill}
+                            style={{ width: `${(disciplina.count / totalResultados) * 100}%` }}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              </ul>
-            )}
-          </div>
-        </div>
+              </div>
+
+              <div className={styles.contentCard}>
+                <div className={styles.cardHeader}>
+                  <IconActivity size={18} />
+                  <h3>Atividades Recentes</h3>
+                </div>
+                {loading ? (
+                  <div className={styles.cardLoading}><p>Carregando atividades...</p></div>
+                ) : (
+                  <ul className={styles.listaAtividades}>
+                    {atividadesRecentes.length === 0 ? (
+                      <li className={styles.emptyState}>Nenhuma atividade registrada hoje.</li>
+                    ) : (
+                      atividadesRecentes.map((atividade, index) => (
+                        <li key={index} className={styles.atividadeItem}>
+                          <div className={styles.atividadeMarker} />
+                          <div className={styles.atividadeContent}>
+                            <strong>{atividade.titulo}</strong>
+                            <span className={styles.subtitulo}>{atividade.subtitulo}</span>
+                            <span className={styles.tempo}>{formatTempo(atividade.data)}</span>
+                          </div>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ============ ABA: NOTAS DO MUNICÍPIO ============ */}
+        {abaAdmin === "notas" && <DetalheMunicipio />}
       </div>
     );
   }

@@ -486,6 +486,515 @@
   font-size: 0.9rem;
 }
 
+/* ===================================================================
+   NOTAS DO MUNICÍPIO — ABAS DO ADMIN
+   =================================================================== */
+
+/* Cabeçalho com título + abas */
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.04);
+}
+
+/* Abas */
+.adminTabs {
+  display: flex;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.adminTab,
+.adminTabAtivo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 11px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.adminTab {
+  background: transparent;
+  color: #64748b;
+}
+
+.adminTab:hover {
+  background: rgba(255, 255, 255, 0.7);
+  color: #334155;
+}
+
+.adminTabAtivo {
+  background: var(--white);
+  color: var(--primary-color);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+}
+
+/* Seção de notas */
+.notasSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notasActionBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.notasCounter {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--secondary-hover);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+}
+
+.addNotaBtn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: var(--white);
+  border: none;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-shadow: 0 4px 14px rgba(211, 47, 47, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.addNotaBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(211, 47, 47, 0.35);
+  filter: brightness(1.08);
+}
+
+/* Tabela */
+.notasTableWrapper {
+  background: var(--white);
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.notasTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+}
+
+.notasTable thead tr {
+  background: #f8fafc;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.notasTable thead th {
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+}
+
+.notasTable tbody tr {
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.15s ease;
+}
+
+.notasTable tbody tr:last-child {
+  border-bottom: none;
+}
+
+.notasTable tbody tr:hover {
+  background: rgba(245, 158, 11, 0.025);
+}
+
+.notasTable tbody td {
+  padding: 14px 18px;
+  font-size: 0.9rem;
+  color: #334155;
+  vertical-align: middle;
+}
+
+/* Células especiais */
+.tdAno {
+  font-weight: 700;
+  color: #475569;
+}
+
+.tdValor strong {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.semDado {
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+/* Badges da tabela */
+.serieBadge {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.avalBadge {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--secondary-hover);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.aval_ideb {
+  background: rgba(99, 102, 241, 0.08);
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.2);
+}
+.aval_idepe {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--secondary-hover);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+.aval_fluencia {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.2);
+}
+.aval_saeb {
+  background: rgba(139, 92, 246, 0.08);
+  color: #7c3aed;
+  border-color: rgba(139, 92, 246, 0.2);
+}
+.aval_saepe {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--primary-color);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Ações por linha */
+.rowActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.editBtn,
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.editBtn {
+  background: rgba(245, 158, 11, 0.04);
+  color: var(--secondary-color);
+  border-color: rgba(245, 158, 11, 0.15);
+}
+
+.editBtn:hover {
+  background: var(--secondary-color);
+  color: var(--white);
+  border-color: var(--secondary-color);
+}
+
+.deleteBtn {
+  background: rgba(239, 68, 68, 0.04);
+  color: var(--danger-color);
+  border-color: rgba(239, 68, 68, 0.12);
+}
+
+.deleteBtn:hover {
+  background: var(--danger-color);
+  color: var(--white);
+  border-color: var(--danger-color);
+}
+
+/* Estado vazio */
+.notasLoading,
+.notasVazio {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 60px 40px;
+  text-align: center;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #94a3b8;
+}
+
+.notasVazio p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #475569;
+  font-family: var(--font-title-friendly);
+}
+
+.notasVazio small {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+.notasLoading p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ===================================================================
+   MODAL DE NOTAS DO MUNICÍPIO
+   =================================================================== */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.modalContainer {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  width: 90%;
+  max-width: 500px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1.5px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modalIconWrap {
+  background: rgba(211, 47, 47, 0.08);
+  color: var(--primary-color);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #0f172a;
+  font-family: var(--font-title-friendly);
+  font-weight: 700;
+}
+
+.modalCloseBtn {
+  background: #f1f5f9;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.modalCloseBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+.modalBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.formGroup label {
+  font-size: 0.8rem;
+  color: #475569;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 0.92rem;
+  background-color: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-family: var(--font-body);
+  transition: all 0.2s ease;
+}
+
+.formInput:focus {
+  border-color: var(--primary-color);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.08);
+  outline: none;
+}
+
+.formHint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.modalFooter {
+  padding: 16px 24px;
+  border-top: 1.5px solid #f1f5f9;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btnSecondary {
+  background: #cbd5e1;
+  color: #334155;
+  border: none;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
+}
+
+.btnSecondary:hover {
+  background: #94a3b8;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: var(--white);
+  border: none;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btnPrimary:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 /* --- 4. ANIMATIONS --- */
 @keyframes fadeIn {
   from {
